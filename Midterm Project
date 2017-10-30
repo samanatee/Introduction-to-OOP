@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <fstream>
 using namespace std;
 
 ///* --------------------------------------------DEPARTMENT CLASS-------------------------------------------- *///
@@ -41,6 +42,8 @@ struct DepartmentArray
 	
 	// PROTOTYPES
 	void createDepartment(int currentDept);
+	void writeDepartmentData();				// OPTION 3
+	void retrieveDepartmentData();			// OPTION 4	
 };
 
 void DepartmentArray::createDepartment(int currentDept)
@@ -83,6 +86,47 @@ void DepartmentArray::createDepartment(int currentDept)
 
 }
 
+void DepartmentArray::writeDepartmentData()		// OPTION 3
+{
+	ofstream writeDptData;
+
+	for (int index = 0; index < MAX_DEPT; index++)
+	{
+		// open output file
+		writeDptData.open("departmentArray" + to_string(index + 1) + ".txt");
+
+		if (writeDptData.is_open())
+		{
+			writeDptData << departmentInfo[index].departmentID << endl;
+			writeDptData << departmentInfo[index].departmentName << endl;
+			writeDptData << departmentInfo[index].departmentHeadName << endl;
+		}
+		// close file
+		writeDptData.close();
+	}
+}
+
+void DepartmentArray::retrieveDepartmentData()			// OPTION 4
+{
+	ifstream dptDataIn;
+
+	for (int index = 0; index < MAX_DEPT; index++)
+	{
+		dptDataIn.open("departmentArray" + to_string(index + 1) + ".txt");
+		if (!dptDataIn)
+			cout << "Error opening file.\n";
+		else
+		{
+			dptDataIn >> departmentInfo[index].departmentID;
+			dptDataIn >> departmentInfo[index].departmentName;
+			dptDataIn >> departmentInfo[index].departmentHeadName;
+		}
+		// close file
+		dptDataIn.close();
+	}
+}
+
+
 ///* --------------------------------------------EMPLOYEE CLASS-------------------------------------------- *///
 
 class Employee
@@ -115,6 +159,9 @@ struct EmployeeArray
 
 	// PROTOTYPES
 	void createEmployee(int currentEmpl, DepartmentArray dptAccess);
+	void writeEmployeeData();				// OPTION 3
+	void retrieveEmployeeData();			// OPTION 4
+	void displaySalaryReport(DepartmentArray dptAccess);			// OPTION 5
 };
 
 void EmployeeArray::createEmployee(int currentEmpl, DepartmentArray dptAccess)
@@ -168,6 +215,7 @@ void EmployeeArray::createEmployee(int currentEmpl, DepartmentArray dptAccess)
 				if (employeeInfo[currentEmpl].employeeDepartmentID == dptAccess.departmentInfo[previous].departmentID)
 				{
 					match = true;
+					break;
 				}
 				else
 				{
@@ -179,36 +227,134 @@ void EmployeeArray::createEmployee(int currentEmpl, DepartmentArray dptAccess)
 			{
 				cout << "That Department ID does not exist! Please enter a valid Employee Department ID.\n";
 				cout << "Employee Department ID: ";
-				cin.ignore();
 				getline(cin, employeeInfo[currentEmpl].employeeDepartmentID);	
 			}
 		}	
 	}
 }
 
+void EmployeeArray::writeEmployeeData()		// OPTION 3
+{
+	ofstream writeEmplData;
+
+	for (int index = 0; index < MAX_EMPLOYEE; index++)
+	{
+		// open output file
+		writeEmplData.open("employeeArray" + to_string(index + 1) + ".txt");
+		if (writeEmplData.is_open())
+		{
+			writeEmplData << employeeInfo[index].employeeID << endl;
+			writeEmplData << employeeInfo[index].employeeName << endl;
+			writeEmplData << employeeInfo[index].employeeSalary << endl;
+			writeEmplData << employeeInfo[index].employeeAge << endl;
+			writeEmplData << employeeInfo[index].employeeDepartmentID << endl;
+		}
+		// close file
+		writeEmplData.close();
+	}
+}
+
+void EmployeeArray::retrieveEmployeeData()			// OPTION 4
+{
+	ifstream dptDataIn;
+
+	for (int index = 0; index < MAX_EMPLOYEE; index++)
+	{
+		dptDataIn.open("employeeArray" + to_string(index + 1) + ".txt");
+		if (!dptDataIn)
+			cout << "Error opening file.\n";
+		else
+		{
+			dptDataIn >> employeeInfo[index].employeeID;
+			dptDataIn >> employeeInfo[index].employeeName;
+			dptDataIn >> employeeInfo[index].employeeSalary;
+			dptDataIn >> employeeInfo[index].employeeAge;
+			dptDataIn >> employeeInfo[index].employeeDepartmentID;
+		}
+		// close file
+		dptDataIn.close();
+	}
+}
+
+void EmployeeArray::displaySalaryReport(DepartmentArray dptAccess)
+{
+	cout << "Total Salary Paid for Each Department";
+	cout << "-------------------------------------";
+
+	// DEPARTMENT 1
+	cout << "Department ID: " << dptAccess.departmentInfo[0].departmentID;
+	int totalDpt1 = 0;
+	for (int index = 0; index < MAX_EMPLOYEE; index++)
+	{
+		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[0].departmentID)
+		{
+			totalDpt1 += employeeInfo[index].employeeSalary;
+		}
+	}
+
+	// DEPARTMENT 2
+	int totalDpt2 = 0;
+	for (int index = 0; index < MAX_EMPLOYEE; index++)
+	{
+		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[1].departmentID)
+		{
+			totalDpt2 += employeeInfo[index].employeeSalary;
+		}
+	}
+
+	// DEPARTMENT 3
+	int totalDpt3 = 0;
+	for (int index = 0; index < MAX_EMPLOYEE; index++)
+	{
+		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[2].departmentID)
+		{
+			totalDpt3 += employeeInfo[index].employeeSalary;
+		}
+	}
+}
 /* --------------------------------------------CLIENT PROGRAM-------------------------------------------- */
 
 // PROTOTYPES 
 void displayMenu();
-//void createEmployee();			// OPTION 2
-void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl, EmployeeArray& emplAccess);
-//void writeData();				// OPTION 3
-//void retrieveData();			// OPTION 4
-//void displayReport();			// OPTION 5
+void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl, EmployeeArray& emplAccess, bool& dptcreate, bool& saved, bool& quit);
 
 int main()
 {
 	char anotherOption;
+	char quitProgram;
 	int currentDept = 0;
 	int currentEmployee = 0;
+	bool departmentcreation = false;
+	bool saved = false;
+	bool quit = false; 
 	DepartmentArray departmentAccess;
 	EmployeeArray employeeAccess;
 
-	cout << "Choose from the menu below using options 1 through 5. \n\n";
+	cout << "Choose from the menu below using options 1 through 6. \n\n";
 	do
 	{
 		displayMenu();
-		chooseOption(currentDept, departmentAccess, currentEmployee, employeeAccess);
+		chooseOption(currentDept, departmentAccess, currentEmployee, employeeAccess, departmentcreation, saved, quit);
+
+		if (quit == true)
+		{
+			if (saved == false)
+			{
+				cout << "You are about to exit the program. The data has not been saved and will be lost.\n";
+				cout << "Do you wish to continue to exit the program? Enter Y for yes or N for no: ";
+				cin >> quitProgram;
+				while (anotherOption != 'Y' && anotherOption != 'y' && anotherOption != 'N' && anotherOption != 'n')
+				{
+					cout << "Press Y for yes or N for No: ";
+					cin >> quitProgram;
+				}
+				if (quitProgram == 'Y' || quitProgram == 'y')
+				{
+					break;
+				}
+			}
+		}
+
 		cout << "Would you like to select another option? Enter Y for yes or N for no: ";
 		cin >> anotherOption;
 
@@ -218,10 +364,32 @@ int main()
 			cin >> anotherOption;
 		}
 		cout << endl;
-	
+
+		if (anotherOption == 'N' || anotherOption == 'n')
+		{
+			if (saved == false)
+			{
+				cout << "You are about to exit the program. The data has not been saved and will be lost.\n";
+				cout << "Do you wish to continue to exit the program? Enter Y for yes or N for no: ";
+				cin >> quitProgram;
+				while (quitProgram != 'Y' && quitProgram != 'y' && quitProgram != 'N' && quitProgram != 'n')
+				{
+					cout << "Press Y for yes or N for No: ";
+					cin >> quitProgram;
+				}
+				if (quitProgram == 'Y' || quitProgram == 'y')
+				{
+					break;
+				}
+				else
+				{
+					cout << "\nChoose from the menu below using options 1 through 6. \n\n";
+					anotherOption = 'Y';
+				}
+			}
+		}
+		
 	} while (anotherOption != 'N' && anotherOption != 'n');
-
-
 
 	// write data to the file, when the user selects this option, dump the info in each array into a separate file
 	// RETRIEVE data from file
@@ -247,12 +415,11 @@ void displayMenu()
 	cout << "3. Write the data to the file\n";
 	cout << "4. Retrieve data from file\n";
 	cout << "5. Display Report\n";
+	cout << "6. Quit the Program\n";
 }
 
-void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl, EmployeeArray& emplAccess)
-{
-	
-	
+void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl, EmployeeArray& emplAccess, bool& dptcreate, bool& saved, bool& quit)
+{	
 	int choice;
 	cout << "Enter selection: ";
 	cin >> choice;
@@ -267,6 +434,7 @@ void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl,
 			{
 				dptAccess.createDepartment(currentDpt);		// number of stored items (max is 3)
 				currentDpt++;
+				dptcreate = true;
 			}
 			else
 			{
@@ -297,15 +465,27 @@ void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl,
 	}
 	case 3:
 	{
-		 break;
+		dptAccess.writeDepartmentData();
+		emplAccess.writeEmployeeData();
+		saved = true;
+		break;
 	}
 	case 4:
 	{
+		dptAccess.retrieveDepartmentData();
+		emplAccess.retrieveEmployeeData();
 		 break;
 	}
 	case 5:
 	{
+		emplAccess.displaySalaryReport(dptAccess);
 		 break;
+	}
+	case 6:
+	{
+		// QUIT PROGRAM
+		quit = true;
+		break;
 	}
 		// INPUT VALIDATION: only accept valid menu choices 
 	default:
@@ -316,22 +496,5 @@ void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl,
 	}
 }
 
-void checkId(string id)
-{
-
-}
 
 
-
-
-
-
-
-
-
-
-
-void displayReport()
-{
-
-}
