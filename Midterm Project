@@ -278,11 +278,13 @@ void EmployeeArray::retrieveEmployeeData()			// OPTION 4
 
 void EmployeeArray::displaySalaryReport(DepartmentArray dptAccess)
 {
-	cout << "Total Salary Paid for Each Department";
-	cout << "-------------------------------------";
+	cout << fixed << showpoint << setprecision(2);
+
+	cout << "\n\n\nTotal Salary Paid for Each Department\n";
+	cout << "-------------------------------------\n";
+	cout << left << setw(25) << "Department Name" << left << setw(25) << "Department ID" << left << setw(25) << "Department Head" << "Total Salary Paid" << endl;
 
 	// DEPARTMENT 1
-	cout << "Department ID: " << dptAccess.departmentInfo[0].departmentID;
 	int totalDpt1 = 0;
 	for (int index = 0; index < MAX_EMPLOYEE; index++)
 	{
@@ -291,6 +293,7 @@ void EmployeeArray::displaySalaryReport(DepartmentArray dptAccess)
 			totalDpt1 += employeeInfo[index].employeeSalary;
 		}
 	}
+	cout << left << setw(25) << dptAccess.departmentInfo[0].departmentName << left << setw(25) << dptAccess.departmentInfo[0].departmentID << left << setw(25) << dptAccess.departmentInfo[0].departmentHeadName << "$ " << totalDpt1 << endl;
 
 	// DEPARTMENT 2
 	int totalDpt2 = 0;
@@ -301,6 +304,7 @@ void EmployeeArray::displaySalaryReport(DepartmentArray dptAccess)
 			totalDpt2 += employeeInfo[index].employeeSalary;
 		}
 	}
+	cout << left << setw(25) << dptAccess.departmentInfo[1].departmentName << left << setw(25) << dptAccess.departmentInfo[1].departmentID << left << setw(25) << dptAccess.departmentInfo[1].departmentHeadName << "$ " << totalDpt2 << endl;
 
 	// DEPARTMENT 3
 	int totalDpt3 = 0;
@@ -311,6 +315,8 @@ void EmployeeArray::displaySalaryReport(DepartmentArray dptAccess)
 			totalDpt3 += employeeInfo[index].employeeSalary;
 		}
 	}
+	cout << left << setw(25) << dptAccess.departmentInfo[2].departmentName << left << setw(25) << dptAccess.departmentInfo[2].departmentID << left << setw(25) << dptAccess.departmentInfo[2].departmentHeadName << "$ " << totalDpt3 << endl;
+
 }
 /* --------------------------------------------CLIENT PROGRAM-------------------------------------------- */
 
@@ -340,10 +346,11 @@ int main()
 		{
 			if (saved == false)
 			{
-				cout << "You are about to exit the program. The data has not been saved and will be lost.\n";
+				cout << "\nYou are about to exit the program. The data has not been saved and will be lost.\n";
+				cout << "You can save your data by selecting option 3.\n";
 				cout << "Do you wish to continue to exit the program? Enter Y for yes or N for no: ";
 				cin >> quitProgram;
-				while (anotherOption != 'Y' && anotherOption != 'y' && anotherOption != 'N' && anotherOption != 'n')
+				while (quitProgram != 'Y' && quitProgram != 'y' && quitProgram != 'N' && quitProgram != 'n')
 				{
 					cout << "Press Y for yes or N for No: ";
 					cin >> quitProgram;
@@ -370,6 +377,7 @@ int main()
 			if (saved == false)
 			{
 				cout << "You are about to exit the program. The data has not been saved and will be lost.\n";
+				cout << "You can save your data by selecting option 3.\n";
 				cout << "Do you wish to continue to exit the program? Enter Y for yes or N for no: ";
 				cin >> quitProgram;
 				while (quitProgram != 'Y' && quitProgram != 'y' && quitProgram != 'N' && quitProgram != 'n')
@@ -381,7 +389,7 @@ int main()
 				{
 					break;
 				}
-				else
+				else if (quitProgram == 'N' || quitProgram == 'n')
 				{
 					cout << "\nChoose from the menu below using options 1 through 6. \n\n";
 					anotherOption = 'Y';
@@ -423,9 +431,7 @@ void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl,
 	int choice;
 	cout << "Enter selection: ";
 	cin >> choice;
-	// IF patron selects a drink
-	// buyDrink class member function is called to handle the actual sale
-	// function should be passed the patron's drink choice
+	
 	switch (choice)
 	{
 	case 1:
@@ -448,7 +454,13 @@ void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl,
 	}
 	case 2:
 	{
-		if (currentEmpl < MAX_EMPLOYEE)
+		if (dptcreate == false)
+		{
+			cout << "You have not created a department yet!\n";
+			cout << "Please select option 1, so that I can verify the employee's department ID\n\n";
+			break;
+		}
+		else if (currentEmpl < MAX_EMPLOYEE)
 		{
 			emplAccess.createEmployee(currentEmpl, dptAccess);		// number of stored items (max is 7)
 			currentEmpl++;
@@ -468,13 +480,14 @@ void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl,
 		dptAccess.writeDepartmentData();
 		emplAccess.writeEmployeeData();
 		saved = true;
+		cout << "Your data has been saved!\n";
 		break;
 	}
 	case 4:
 	{
 		dptAccess.retrieveDepartmentData();
 		emplAccess.retrieveEmployeeData();
-		 break;
+		break;
 	}
 	case 5:
 	{
