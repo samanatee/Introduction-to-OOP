@@ -42,12 +42,12 @@ struct DepartmentArray
 	Department departmentInfo[MAX_DEPT];
 	
 	// PROTOTYPES
-	void createDepartment(int currentDept);
+	void createDepartment(int& currentDept);
 	void writeDepartmentData();				// OPTION 3
-	void retrieveDepartmentData(int currentDpt);			// OPTION 4	
+	void retrieveDepartmentData(int& currentDpt);			// OPTION 4	
 };
 
-void DepartmentArray::createDepartment(int currentDept)
+void DepartmentArray::createDepartment(int& currentDept)
 {
 	// create Department
 	// collect all information about a department
@@ -106,7 +106,7 @@ void DepartmentArray::writeDepartmentData()		// OPTION 3
 	}
 }
 
-void DepartmentArray::retrieveDepartmentData(int currentDpt)			// OPTION 4
+void DepartmentArray::retrieveDepartmentData(int& currentDpt)			// OPTION 4
 {
 	ifstream dptDataIn;
 
@@ -122,7 +122,10 @@ void DepartmentArray::retrieveDepartmentData(int currentDpt)			// OPTION 4
 			dptDataIn >> departmentInfo[index].departmentHeadName;
 			if (departmentInfo[index].departmentID != "N/A" && departmentInfo[index].departmentName != "N/A" && departmentInfo[index].departmentHeadName != "N/A")
 			{
-				currentDpt;
+				if (currentDpt < MAX_DEPT)
+				{
+					currentDpt++;
+				}
 			}
 		}
 		// close file
@@ -162,13 +165,13 @@ struct EmployeeArray
 	Employee employeeInfo[MAX_EMPLOYEE];
 
 	// PROTOTYPES
-	void createEmployee(int currentEmpl, DepartmentArray dptAccess);
+	void createEmployee(int& currentEmpl, DepartmentArray dptAccess);
 	void writeEmployeeData();				// OPTION 3
-	void retrieveEmployeeData(int currentEmpl);			// OPTION 4
+	void retrieveEmployeeData(int& currentEmpl);			// OPTION 4
 	void displaySalaryReport(DepartmentArray dptAccess);			// OPTION 5
 };
 
-void EmployeeArray::createEmployee(int currentEmpl, DepartmentArray dptAccess)
+void EmployeeArray::createEmployee(int& currentEmpl, DepartmentArray dptAccess)
 {
 	// create Employee
 	// collect all information about an employee
@@ -264,7 +267,7 @@ void EmployeeArray::writeEmployeeData()		// OPTION 3
 	}
 }
 
-void EmployeeArray::retrieveEmployeeData(int currentEmpl)			// OPTION 4
+void EmployeeArray::retrieveEmployeeData(int& currentEmpl)			// OPTION 4
 {
 	ifstream dptDataIn;
 
@@ -282,7 +285,10 @@ void EmployeeArray::retrieveEmployeeData(int currentEmpl)			// OPTION 4
 				dptDataIn >> employeeInfo[index].employeeDepartmentID;	
 				if (employeeInfo[index].employeeID != "N/A" && employeeInfo[index].employeeName != "N/A" && employeeInfo[index].employeeSalary != 0.00 && employeeInfo[index].employeeAge != 0 && employeeInfo[index].employeeDepartmentID != "N/A")
 				{
-					currentEmpl++;
+					if (currentEmpl < MAX_EMPLOYEE)
+					{
+						currentEmpl++;
+					}
 				}
 		}
 		// close file
