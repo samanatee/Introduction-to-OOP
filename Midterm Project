@@ -480,7 +480,7 @@ void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl,
 		else
 		{
 			// when array is fully, display error message to the user "The array is full, you can not add any more employees"
-			if (currentEmpl == MAX_DEPT)
+			if (currentEmpl == MAX_EMPLOYEE)
 			{
 				cout << "ERROR: The array is full, you can not add any more employees!\n";
 			}
