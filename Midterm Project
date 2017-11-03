@@ -8,21 +8,22 @@
 #include <string>
 #include <iomanip>
 #include <fstream>
+#include <limits>
 using namespace std;
 
 ///* --------------------------------------------DEPARTMENT CLASS-------------------------------------------- *///
 class Department
 {
-	public:
+public:
 	string departmentID;
 	string departmentName;
 	string departmentHeadName;
 	// DEFAULT CONSTRUCTOR
 	Department()
 	{
-		departmentID = "";
-		departmentName = "";
-		departmentHeadName = "";
+		departmentID = "N/A";
+		departmentName = "N/A";
+		departmentHeadName = "N/A";
 	}
 
 	Department(string id, string name, string head)
@@ -39,19 +40,19 @@ const int MAX_DEPT = 3;
 struct DepartmentArray
 {
 	Department departmentInfo[MAX_DEPT];
-	
+
 	// PROTOTYPES
-	void createDepartment(int currentDept);
+	void createDepartment(int& currentDept);
 	void writeDepartmentData();				// OPTION 3
-	void retrieveDepartmentData();			// OPTION 4	
+	void retrieveDepartmentData(int& currentDpt);			// OPTION 4	
 };
 
-void DepartmentArray::createDepartment(int currentDept)
+void DepartmentArray::createDepartment(int& currentDept)
 {
 	// create Department
 	// collect all information about a department
-		
-	
+
+
 	if (currentDept < MAX_DEPT)
 	{
 		cout << "\n\n---CREATE A DEPARTMENT---\n";
@@ -59,7 +60,7 @@ void DepartmentArray::createDepartment(int currentDept)
 		cout << "Department ID: ";
 		cin.ignore();
 		getline(cin, departmentInfo[currentDept].departmentID);
-		
+
 		/// make sure departmentID does NOT already exist in the array containing Department objects
 		// IF it does NOT, insert Department object into the array
 		if (currentDept != 0)
@@ -70,7 +71,6 @@ void DepartmentArray::createDepartment(int currentDept)
 				{
 					cout << "That Department ID already exists! Please enter a different department ID.\n";
 					cout << "Department ID: ";
-					cin.ignore();
 					getline(cin, departmentInfo[currentDept].departmentID);
 				}
 			}
@@ -106,9 +106,10 @@ void DepartmentArray::writeDepartmentData()		// OPTION 3
 	}
 }
 
-void DepartmentArray::retrieveDepartmentData()			// OPTION 4
+void DepartmentArray::retrieveDepartmentData(int& currentDpt)			// OPTION 4
 {
 	ifstream dptDataIn;
+	int currentDeptArray = 0;
 
 	for (int index = 0; index < MAX_DEPT; index++)
 	{
@@ -120,7 +121,15 @@ void DepartmentArray::retrieveDepartmentData()			// OPTION 4
 			dptDataIn >> departmentInfo[index].departmentID;
 			dptDataIn >> departmentInfo[index].departmentName;
 			dptDataIn >> departmentInfo[index].departmentHeadName;
+			if (departmentInfo[index].departmentID != "N/A" && departmentInfo[index].departmentName != "N/A" && departmentInfo[index].departmentHeadName != "N/A")
+			{
+				if (currentDeptArray < MAX_DEPT)
+				{
+					currentDeptArray++;
+				}
+			}
 		}
+		currentDpt = currentDeptArray;
 		// close file
 		dptDataIn.close();
 	}
@@ -131,7 +140,7 @@ void DepartmentArray::retrieveDepartmentData()			// OPTION 4
 
 class Employee
 {
-	
+
 public:
 	// member variables
 	string employeeID;
@@ -143,10 +152,11 @@ public:
 	// DEFAULT CONSTRUCTOR
 	Employee()
 	{
-		employeeID = "";
-		employeeName = "";
+		employeeID = "N/A";
+		employeeName = "N/A";
 		employeeSalary = 0.00;
 		employeeAge = 0;
+		employeeDepartmentID = "N/A";
 	}
 
 };
@@ -158,18 +168,25 @@ struct EmployeeArray
 	Employee employeeInfo[MAX_EMPLOYEE];
 
 	// PROTOTYPES
-	void createEmployee(int currentEmpl, DepartmentArray dptAccess);
+	void createEmployee(int& currentEmpl, DepartmentArray dptAccess);
 	void writeEmployeeData();				// OPTION 3
-	void retrieveEmployeeData();			// OPTION 4
+	void retrieveEmployeeData(int& currentEmpl);			// OPTION 4
 	void displaySalaryReport(DepartmentArray dptAccess);			// OPTION 5
 };
 
-void EmployeeArray::createEmployee(int currentEmpl, DepartmentArray dptAccess)
+void EmployeeArray::createEmployee(int& currentEmpl, DepartmentArray dptAccess)
 {
-	// create Department
-	// collect all information about a department
+	// create Employee
+	// collect all information about an employee
 
-	if (currentEmpl < MAX_EMPLOYEE)
+	if (dptAccess.departmentInfo[0].departmentID == "N/A" && dptAccess.departmentInfo[1].departmentID == "N/A" && dptAccess.departmentInfo[2].departmentID == "N/A")
+	{
+		cout << "\nThere are no departments available!\n";
+		cout << "Before you create an employee, ";
+		cout << "please select Option 1 to create a department or \nOption 4 to retrieve data from the files.\n";
+	}
+
+	else if (currentEmpl < MAX_EMPLOYEE)
 	{
 		cout << "\n\n---CREATE AN EMPLOYEE---\n";
 		cout << "Please fill out the following information for the employee." << endl;
@@ -177,8 +194,8 @@ void EmployeeArray::createEmployee(int currentEmpl, DepartmentArray dptAccess)
 		cin.ignore();
 		getline(cin, employeeInfo[currentEmpl].employeeID);
 
-		/// make sure departmentID does NOT already exist in the array containing Department objects
-		// IF it does NOT, insert Department object into the array
+		/// make sure employeeID does NOT already exist in the array containing Department objects
+		// IF it does NOT, insert Employee object into the array
 		if (currentEmpl != 0)
 		{
 			for (int previous = 0; previous < currentEmpl; previous++)
@@ -187,7 +204,6 @@ void EmployeeArray::createEmployee(int currentEmpl, DepartmentArray dptAccess)
 				{
 					cout << "That Employee ID already exists! Please enter a different Employee ID.\n";
 					cout << "Employee ID: ";
-					cin.ignore();
 					getline(cin, employeeInfo[currentEmpl].employeeID);
 				}
 			}
@@ -205,9 +221,9 @@ void EmployeeArray::createEmployee(int currentEmpl, DepartmentArray dptAccess)
 		cout << "Employee Department ID: ";
 		cin.ignore();
 		getline(cin, employeeInfo[currentEmpl].employeeDepartmentID);
-		
+
 		bool match = false;
-		
+
 		while (match == false)
 		{
 			for (int previous = 0; previous < MAX_DEPT && match == false; previous++)
@@ -227,9 +243,9 @@ void EmployeeArray::createEmployee(int currentEmpl, DepartmentArray dptAccess)
 			{
 				cout << "That Department ID does not exist! Please enter a valid Employee Department ID.\n";
 				cout << "Employee Department ID: ";
-				getline(cin, employeeInfo[currentEmpl].employeeDepartmentID);	
+				getline(cin, employeeInfo[currentEmpl].employeeDepartmentID);
 			}
-		}	
+		}
 	}
 }
 
@@ -254,9 +270,10 @@ void EmployeeArray::writeEmployeeData()		// OPTION 3
 	}
 }
 
-void EmployeeArray::retrieveEmployeeData()			// OPTION 4
+void EmployeeArray::retrieveEmployeeData(int& currentEmpl)			// OPTION 4
 {
 	ifstream dptDataIn;
+	int currentEmplArray = 0;
 
 	for (int index = 0; index < MAX_EMPLOYEE; index++)
 	{
@@ -270,9 +287,18 @@ void EmployeeArray::retrieveEmployeeData()			// OPTION 4
 			dptDataIn >> employeeInfo[index].employeeSalary;
 			dptDataIn >> employeeInfo[index].employeeAge;
 			dptDataIn >> employeeInfo[index].employeeDepartmentID;
+			if (employeeInfo[index].employeeID != "N/A" && employeeInfo[index].employeeName != "N/A" && employeeInfo[index].employeeSalary != 0.00 && employeeInfo[index].employeeAge != 0 && employeeInfo[index].employeeDepartmentID != "N/A")
+			{
+				if (currentEmpl < MAX_EMPLOYEE)
+				{
+					currentEmplArray++;
+				}
+			}
 		}
+		currentEmpl = currentEmplArray;
 		// close file
 		dptDataIn.close();
+
 	}
 }
 
@@ -280,12 +306,12 @@ void EmployeeArray::displaySalaryReport(DepartmentArray dptAccess)
 {
 	cout << fixed << showpoint << setprecision(2);
 
-	cout << "\n\n\nTotal Salary Paid for Each Department\n";
-	cout << "-------------------------------------\n";
-	cout << left << setw(25) << "Department Name" << left << setw(25) << "Department ID" << left << setw(25) << "Department Head" << "Total Salary Paid" << endl;
+	cout << "\n\n\n                    Salary Report: Total Salary Paid for Each Department\n";
+	cout << "---------------------------------------------------------------------------------------------\n";
+	cout << left << setw(25) << "Department Name:" << left << setw(25) << "Department ID:" << left << setw(25) << "Department Head:" << "Total Salary Paid:" << endl;
 
 	// DEPARTMENT 1
-	int totalDpt1 = 0;
+	double totalDpt1 = 0;
 	for (int index = 0; index < MAX_EMPLOYEE; index++)
 	{
 		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[0].departmentID)
@@ -296,7 +322,7 @@ void EmployeeArray::displaySalaryReport(DepartmentArray dptAccess)
 	cout << left << setw(25) << dptAccess.departmentInfo[0].departmentName << left << setw(25) << dptAccess.departmentInfo[0].departmentID << left << setw(25) << dptAccess.departmentInfo[0].departmentHeadName << "$ " << totalDpt1 << endl;
 
 	// DEPARTMENT 2
-	int totalDpt2 = 0;
+	double totalDpt2 = 0;
 	for (int index = 0; index < MAX_EMPLOYEE; index++)
 	{
 		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[1].departmentID)
@@ -307,7 +333,7 @@ void EmployeeArray::displaySalaryReport(DepartmentArray dptAccess)
 	cout << left << setw(25) << dptAccess.departmentInfo[1].departmentName << left << setw(25) << dptAccess.departmentInfo[1].departmentID << left << setw(25) << dptAccess.departmentInfo[1].departmentHeadName << "$ " << totalDpt2 << endl;
 
 	// DEPARTMENT 3
-	int totalDpt3 = 0;
+	double totalDpt3 = 0;
 	for (int index = 0; index < MAX_EMPLOYEE; index++)
 	{
 		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[2].departmentID)
@@ -322,7 +348,7 @@ void EmployeeArray::displaySalaryReport(DepartmentArray dptAccess)
 
 // PROTOTYPES 
 void displayMenu();
-void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl, EmployeeArray& emplAccess, bool& dptcreate, bool& saved, bool& quit);
+void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl, EmployeeArray& emplAccess, bool& saved, bool& quit);
 
 int main()
 {
@@ -330,9 +356,8 @@ int main()
 	char quitProgram;
 	int currentDept = 0;
 	int currentEmployee = 0;
-	bool departmentcreation = false;
 	bool saved = false;
-	bool quit = false; 
+	bool quit = false;
 	DepartmentArray departmentAccess;
 	EmployeeArray employeeAccess;
 
@@ -340,7 +365,7 @@ int main()
 	do
 	{
 		displayMenu();
-		chooseOption(currentDept, departmentAccess, currentEmployee, employeeAccess, departmentcreation, saved, quit);
+		chooseOption(currentDept, departmentAccess, currentEmployee, employeeAccess, saved, quit);
 
 		if (quit == true)
 		{
@@ -360,6 +385,8 @@ int main()
 					break;
 				}
 			}
+			else
+				break;
 		}
 
 		cout << "Would you like to select another option? Enter Y for yes or N for no: ";
@@ -396,7 +423,7 @@ int main()
 				}
 			}
 		}
-		
+
 	} while (anotherOption != 'N' && anotherOption != 'n');
 
 	// write data to the file, when the user selects this option, dump the info in each array into a separate file
@@ -409,7 +436,6 @@ int main()
 	// IF user tries to exit program without saving file
 	// ALERT user that data has not been saved and will be lost
 	// Proceed only if user consents
-
 	system("pause");
 	return 0;
 }
@@ -421,46 +447,39 @@ void displayMenu()
 	cout << "1. Create Department\n";
 	cout << "2. Create Employee\n";
 	cout << "3. Write the data to the file\n";
-	cout << "4. Retrieve data from file\n";
+	cout << "4. Retrieve data from the file\n";
 	cout << "5. Display Report\n";
 	cout << "6. Quit the Program\n";
 }
 
-void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl, EmployeeArray& emplAccess, bool& dptcreate, bool& saved, bool& quit)
-{	
+void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl, EmployeeArray& emplAccess, bool& saved, bool& quit)
+{
 	int choice;
 	cout << "Enter selection: ";
 	cin >> choice;
-	
+
 	switch (choice)
 	{
 	case 1:
 	{
-			if (currentDpt < MAX_DEPT)
+		if (currentDpt < MAX_DEPT)
+		{
+			dptAccess.createDepartment(currentDpt);		// number of stored items (max is 3)
+			currentDpt++;
+		}
+		else
+		{
+			// when array is fully, display error message to the user "The array is full, you can not add any more departments"
+			if (currentDpt == MAX_DEPT)
 			{
-				dptAccess.createDepartment(currentDpt);		// number of stored items (max is 3)
-				currentDpt++;
-				dptcreate = true;
+				cout << "ERROR: The array is full, you can not add any more departments!\n";
 			}
-			else
-			{
-				// when array is fully, display error message to the user "The array is full, you can not add any more departments"
-				if (currentDpt == MAX_DEPT)
-				{
-					cout << "ERROR: The array is full, you can not add any more departments!\n";
-				}
-			}
-			break;
+		}
+		break;
 	}
 	case 2:
 	{
-		if (dptcreate == false)
-		{
-			cout << "You have not created a department yet!\n";
-			cout << "Please select option 1, so that I can verify the employee's department ID\n\n";
-			break;
-		}
-		else if (currentEmpl < MAX_EMPLOYEE)
+		if (currentEmpl < MAX_EMPLOYEE)
 		{
 			emplAccess.createEmployee(currentEmpl, dptAccess);		// number of stored items (max is 7)
 			currentEmpl++;
@@ -468,7 +487,7 @@ void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl,
 		else
 		{
 			// when array is fully, display error message to the user "The array is full, you can not add any more employees"
-			if (currentEmpl == MAX_DEPT)
+			if (currentEmpl == MAX_EMPLOYEE)
 			{
 				cout << "ERROR: The array is full, you can not add any more employees!\n";
 			}
@@ -485,14 +504,15 @@ void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl,
 	}
 	case 4:
 	{
-		dptAccess.retrieveDepartmentData();
-		emplAccess.retrieveEmployeeData();
+		dptAccess.retrieveDepartmentData(currentDpt);
+		emplAccess.retrieveEmployeeData(currentEmpl);
+		cout << "Your data has been retrieved!\n";
 		break;
 	}
 	case 5:
 	{
 		emplAccess.displaySalaryReport(dptAccess);
-		 break;
+		break;
 	}
 	case 6:
 	{
@@ -500,7 +520,7 @@ void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl,
 		quit = true;
 		break;
 	}
-		// INPUT VALIDATION: only accept valid menu choices 
+	// INPUT VALIDATION: only accept valid menu choices 
 	default:
 	{
 		cout << "\nSelect a valid option.\n";
