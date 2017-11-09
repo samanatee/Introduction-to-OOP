@@ -1,0 +1,96 @@
+// Samantha Hangsan
+// CS 939 - Homework 8 (Pointers)
+// TEST SCORES #1
+
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+// PROTOTYPES
+void sortArray(double *arr, int size);
+double getAverage(double *arr, int size);
+
+
+int main()
+{
+	double *scores,	// dynamically allocate array
+		average;
+	int numScores;
+	
+	// get number of scores
+	cout << "How many test scores do you wish to process? ";
+	cin >> numScores;
+
+	// program dynamically allocates an array large enough to hold a user-defined number of test scores
+	scores = new double[numScores];		// allocate memory
+
+	// get each test score
+	cout << "Enter the test scores below: \n";
+	for (int count = 0; count < numScores; count++)
+	{
+		cout << "Score " << (count + 1) << ": ";
+		cin >> *(scores + count);
+		while (*(scores + count) < 0)
+		{
+			cout << "The score cannot be negative. Please enter a valid score: ";
+			cin >> *(scores + count);
+		}
+	}
+
+	// when all scores are entered, the array should be passed to a function that sorts them in ascending order
+	sortArray(scores, numScores);
+	cout << "\n\nSorted list of scores in ascending order: \n";
+	for (int index = 0; index < numScores; index++)
+	{
+		cout << *(scores + index) << " ";
+	}
+
+	// another function should be called to calculate the average score
+	average = getAverage(scores, numScores);
+
+	// program should display the sorted list of scores and averages with appropriate HEADINGS
+	cout << "\nAverage of the scores: " << average << "\n";
+
+	// Use pointer notation and not array notation whenever possible
+
+	// INPUT VALIDATION: do not accept negative numbers for test scores
+
+	delete[] scores;
+	scores = 0;
+
+    return 0;
+}
+
+void sortArray(double *arr, int size)
+{
+	double leastScore;
+
+	for (int index = 0; index <= (size - 1) ; index++)
+	{
+		leastScore = *(arr + index);
+		for (int next = index + 1; next < size; next++)
+		{
+			if (*(arr + next) < leastScore)
+			{
+				leastScore = *(arr + next);
+				*(arr + next) = *(arr + index);
+				*(arr + index) = leastScore;
+			}
+		}
+	}
+		
+}
+
+double getAverage(double *arr, int size)
+{
+	double sum = 0, avg;
+
+
+	for (int index = 0; index < size; index++)
+	{
+		sum += *(arr + index);
+	}
+
+	avg = sum / size;
+	return avg; 
+}
