@@ -1,0 +1,113 @@
+// Samantha Hangsan
+// CS 939 - Homework 8 (Pointers)
+// TEST SCORES #2
+
+// modify program 1 to allow user to enter name-score pairs
+	// for each student taking a test, user types a string (name of student) and an integer (student's score)
+// modify the sorting and average-calculating functions, so they take arrays of structures
+// each structure should contain the name and score of a single student
+
+// in traversing the arrays, use pointers, rather than array indices
+
+#include <iostream>
+#include <iomanip>
+#include <string>
+using namespace std;
+
+struct StudentScore
+{
+	string Name; 
+	int Score; 
+};
+
+// PROTOTYPES
+void sortArray(StudentScore *arr, int size);
+double getAverage(StudentScore *arr, int size);
+
+
+int main()
+{
+	StudentScore *Student;
+
+	double average;
+	int numScores;
+
+	// get number of scores
+	cout << "How many test scores do you wish to process? ";
+	cin >> numScores;
+
+	// program dynamically allocates an array large enough to hold a user-defined number of test scores
+	Student = new StudentScore[numScores];		// allocate memory
+
+										// get each test score
+	cout << "Enter the name and test score for each student below: \n";
+	for (int count = 0; count < numScores; count++)
+	{
+		cout << "Name of Student " << (count + 1) << ": ";
+		cin.ignore();
+		getline(cin, (Student + count)->Name);
+		cout << (Student + count)->Name << "'s score: ";
+		cin >> (Student + count)->Score;
+		while ((Student + count)->Score < 0)
+		{
+			cout << "The score cannot be negative. Please enter a valid score: ";
+			cin >> (Student + count)->Score;
+		}
+	}
+
+	// when all scores are entered, the array should be passed to a function that sorts them in ascending order
+	sortArray(Student, numScores);
+	cout << "\n\nSorted list of scores in ascending order: \n";
+	for (int index = 0; index < numScores; index++)
+	{
+		cout << (Student + index)->Score << " ";
+	}
+
+	// another function should be called to calculate the average score
+	average = getAverage(Student, numScores);
+
+	// program should display the sorted list of scores and averages with appropriate HEADINGS
+	cout << "\nAverage of the scores: " << average << "\n";
+
+	// Use pointer notation and not array notation whenever possible
+
+	delete[] Student;
+	Student = 0;
+
+	// INPUT VALIDATION: do not accept negative numbers for test scores
+	return 0;
+}
+
+void sortArray(StudentScore *arr, int size)
+{
+	double leastScore;
+
+	for (int index = 0; index <= (size - 1); index++)
+	{
+		leastScore = (arr + index)->Score;
+		for (int next = index + 1; next < size; next++)
+		{
+			if ((arr + next)->Score < leastScore)
+			{
+				leastScore = (arr + next)->Score;
+				(arr + next)->Score = (arr + index)->Score;
+				(arr + index)->Score = leastScore;
+			}
+		}
+	}
+
+}
+
+double getAverage(StudentScore *arr, int size)
+{
+	double sum = 0, avg;
+
+
+	for (int index = 0; index < size; index++)
+	{
+		sum += (arr + index)->Score;
+	}
+
+	avg = sum / size;
+	return avg;
+}
