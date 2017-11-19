@@ -1,0 +1,89 @@
+// Samantha Hangsan
+// ID: 900029599
+// CS 939 - Homework 9
+// CHAPTER 11, EXERCISE 2
+// DAY OF THE YEAR 
+
+#include <iostream>
+#include <string>
+using namespace std; 
+
+// assuming a year has 365 day, write a class named DayOfYear 
+// that takes an integer representing a day of the year 
+// and translates it to a string consisting of the month
+// followed by the day of the month 
+class DayOfYear
+{
+private: 
+	int day;						// integer member variable to repesent day
+	static string month[12];			// static member variables of type string to assist in the translation from integer format to month-day format
+
+public:
+	// Default constructor
+	DayOfYear() { day = 0; }
+	// constructor for class should take as parameter an integer 
+	// that represents the day of the year
+	DayOfYear(int d)
+	{
+		day = d;
+	}
+	void print();				// member function print(): print the day in the month-day format
+				
+};
+
+// initialize months 
+string DayOfYear::month[12] = { "January", "February", "March", "April", "May", "June",
+"July", "August", "September", "October", "November", "December" };
+
+void DayOfYear::print()
+{
+	int initial = 0, printDay, printMonth; // add days of months
+	
+
+	// determine month
+	int daysOfMonth[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+	for (int index = 0; index < 12; index++)
+	{
+		if (day < (initial + (daysOfMonth[index] + 1)))		// example: 32 = February 1st
+		{
+			printMonth = index;								// example: print month = 1
+			printDay = day - initial;									// example: 32 - 31 = 1
+			break;
+		}
+		initial += daysOfMonth[index];						// example: initial = 0 + 31
+	}
+
+	// print month-day format
+	cout << month[printMonth] << " " << printDay;			// example: February 1
+
+}
+
+int main()
+{
+	int dayUser; 
+	cout << "Please enter a day of the year (days 1 through 365), and this program will return it in month-day format.\n\n";
+	cout << "Example:\n32 [user input]" << endl;
+	DayOfYear Date(32);
+	Date.print();
+	cout << " [output]\n\n";
+
+	cout << "Enter day of the year: ";
+	cin >> dayUser;
+
+	if (dayUser > 0 && dayUser <= 365)
+	{
+		DayOfYear Date(dayUser);
+		Date.print();
+		cout << endl;
+	}
+
+	else
+	{
+		cout << "Please enter a number between 1 and 365.\n";
+	}
+	
+	
+	system("pause");
+	return 0; 
+}
