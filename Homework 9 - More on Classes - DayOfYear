@@ -15,7 +15,7 @@ using namespace std;
 class DayOfYear
 {
 private: 
-	int day;						// integer member variable to repesent day
+	int day;					// integer member variable to repesent day
 	static string month[12];			// static member variables of type string to assist in the translation from integer format to month-day format
 	static int daysOfMonth[12];
 
