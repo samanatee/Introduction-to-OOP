@@ -17,6 +17,7 @@ class DayOfYear
 private: 
 	int day;						// integer member variable to repesent day
 	static string month[12];			// static member variables of type string to assist in the translation from integer format to month-day format
+	static int daysOfMonth[12];
 
 public:
 	// Default constructor
@@ -35,14 +36,13 @@ public:
 string DayOfYear::month[12] = { "January", "February", "March", "April", "May", "June",
 "July", "August", "September", "October", "November", "December" };
 
+// initialize days of months
+int DayOfYear::daysOfMonth[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
 void DayOfYear::print()
 {
 	int initial = 0, printDay, printMonth; // add days of months
 	
-
-	// determine month
-	int daysOfMonth[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-
 	for (int index = 0; index < 12; index++)
 	{
 		if (day < (initial + (daysOfMonth[index] + 1)))		// example: 32 = February 1st
@@ -83,7 +83,5 @@ int main()
 		cout << "Please enter a number between 1 and 365.\n";
 	}
 	
-	
-	system("pause");
 	return 0; 
 }
