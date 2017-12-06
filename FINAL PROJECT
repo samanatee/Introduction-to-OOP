@@ -1,0 +1,568 @@
+// Samantha Hangsan
+// ID: 900029599
+// CS 939 
+// FINAL PROJECT
+
+/*//////////////////////////////////////////////////////////////////////////////////////////////
+PROJECT SPECS: 
+
+The purpose of this project is to take your Midterm project  and  implement it using Random Access Binary Files.
+As you recall, the Midterm project used text files to store the data. Here in the final exam project,
+you will be storing the data in Random Access Binary File.
+
+Also, in the Midterm project you used Arrays to temporarily hold the data in the memory until the user
+decides to write the data to file. Here you will NOT be using Arrays and instead writing the
+data directly to Random Access Binary File(This is a must).
+Please read the chapter Advance File and I/O operations
+before attempting this.
+
+Here is the full description of the Final exam project.
+
+Modify your Midterm Exam Project to:
+
+1. Replace  Employee and Department classes with Employee and Department Structures.
+
+2. Inside each structure, replace all string variables with  array of characters.
+
+3. Make Employee and Department editable. That means, the user should be able to edit a given Employee and Department.
+
+4. Do not allow the user to edit the Employee ID and Department ID.
+
+5. Use Random Access Files to store the data in Binary Form. This means, you should not use an Arrays to
+store the data in the memory. Instead, when the user wants to create a new Employee/Department,
+you write it to the file right away. Also when the user says he/she wants to edit
+an Employee/Department, ask the user to enter EmployeeID/DepartmentID.
+Read the data from the file and display it to the user.
+Allow the user to enter new data and write it back to the file in the same position inside the file.
+Please read the chapter . Advance File/IO operations which has examples on how to do this.
+
+//////////////////////////////////////////////////////////////////////////////////////////////*/
+
+
+#include <iostream>
+#include <string>
+#include <iomanip>
+#include <fstream>
+#include <limits>
+using namespace std;
+
+const int ID_SIZE = 20, NAME_SIZE = 50;
+
+///* --------------------------------------------DEPARTMENT STRUCTURE-------------------------------------------- *///
+struct Department
+{
+	char departmentID[ID_SIZE];
+	char departmentName[NAME_SIZE];
+	char departmentHeadName[NAME_SIZE];
+};
+
+///* --------------------------------------------DEPARTMENTARRAY STRUCT-------------------------------------------- *///
+const int MAX_DEPT = 3;
+struct DepartmentArray
+{
+	Department departmentInfo[MAX_DEPT];
+
+	// PROTOTYPES
+	void createDepartment(int& currentDept);
+	void writeDepartmentData();				// OPTION 3
+	void retrieveDepartmentData(int& currentDpt);			// OPTION 4	
+};
+
+void DepartmentArray::createDepartment(int& currentDept)
+{
+	// create Department
+	// collect all information about a department
+
+
+	if (currentDept < MAX_DEPT)
+	{
+		cout << "\n\n---CREATE A DEPARTMENT---\n";
+		cout << "Please fill out the following information for the department." << endl;
+		cout << "Department ID: ";
+		cin.ignore();
+		getline(cin, departmentInfo[currentDept].departmentID);
+
+		/// make sure departmentID does NOT already exist in the array containing Department objects
+		// IF it does NOT, insert Department object into the array
+		if (currentDept != 0)
+		{
+			for (int previous = 0; previous < currentDept; previous++)
+			{
+				while (departmentInfo[currentDept].departmentID == departmentInfo[previous].departmentID)
+				{
+					cout << "That Department ID already exists! Please enter a different department ID.\n";
+					cout << "Department ID: ";
+					getline(cin, departmentInfo[currentDept].departmentID);
+				}
+			}
+
+		}
+		// if id is good, continue and create object in array
+		cout << "Department Name: ";
+		getline(cin, departmentInfo[currentDept].departmentName);
+
+		cout << "Name of the Head of the Department: ";
+		getline(cin, departmentInfo[currentDept].departmentHeadName);
+	}
+
+}
+
+void DepartmentArray::writeDepartmentData()		// OPTION 3
+{
+	ofstream writeDptData;
+
+	for (int index = 0; index < MAX_DEPT; index++)
+	{
+		// open output file
+		writeDptData.open("departmentArray" + to_string(index + 1) + ".txt");
+
+		if (writeDptData.is_open())
+		{
+			writeDptData << departmentInfo[index].departmentID << endl;
+			writeDptData << departmentInfo[index].departmentName << endl;
+			writeDptData << departmentInfo[index].departmentHeadName << endl;
+		}
+		// close file
+		writeDptData.close();
+	}
+}
+
+void DepartmentArray::retrieveDepartmentData(int& currentDpt)			// OPTION 4
+{
+	ifstream dptDataIn;
+	int currentDeptArray = 0;
+
+	for (int index = 0; index < MAX_DEPT; index++)
+	{
+		dptDataIn.open("departmentArray" + to_string(index + 1) + ".txt");
+		if (!dptDataIn)
+			cout << "Error opening file.\n";
+		else
+		{
+			dptDataIn >> departmentInfo[index].departmentID;
+			dptDataIn >> departmentInfo[index].departmentName;
+			dptDataIn >> departmentInfo[index].departmentHeadName;
+			if (departmentInfo[index].departmentID != "N/A" && departmentInfo[index].departmentName != "N/A" && departmentInfo[index].departmentHeadName != "N/A")
+			{
+				if (currentDeptArray < MAX_DEPT)
+				{
+					currentDeptArray++;
+				}
+			}
+			cout << "Your data has been retrieved!\n";
+		}
+		currentDpt = currentDeptArray;
+		// close file
+		dptDataIn.close();
+	}
+}
+
+
+///* --------------------------------------------EMPLOYEE STRUCTURE-------------------------------------------- *///
+
+struct Employee
+{
+	// member variables
+	string employeeID;
+	string employeeName;
+	double employeeSalary;
+	int employeeAge;
+	string employeeDepartmentID;
+
+	// DEFAULT CONSTRUCTOR
+	Employee()
+	{
+		employeeID = "N/A";
+		employeeName = "N/A";
+		employeeSalary = 0.00;
+		employeeAge = 0;
+		employeeDepartmentID = "N/A";
+	}
+
+};
+
+///* --------------------------------------------EMPLOYEEARRAY STRUCT-------------------------------------------- *///
+const int MAX_EMPLOYEE = 7;
+struct EmployeeArray
+{
+	Employee employeeInfo[MAX_EMPLOYEE];
+
+	// PROTOTYPES
+	void createEmployee(int& currentEmpl, DepartmentArray dptAccess);
+	void writeEmployeeData();				// OPTION 3
+	void retrieveEmployeeData(int& currentEmpl);			// OPTION 4
+	void displaySalaryReport(DepartmentArray dptAccess);			// OPTION 5
+};
+
+void EmployeeArray::createEmployee(int& currentEmpl, DepartmentArray dptAccess)
+{
+	// create Employee
+	// collect all information about an employee
+
+	if (dptAccess.departmentInfo[0].departmentID == "N/A" && dptAccess.departmentInfo[1].departmentID == "N/A" && dptAccess.departmentInfo[2].departmentID == "N/A")
+	{
+		cout << "\nThere are no departments available!\n";
+		cout << "Before you create an employee, ";
+		cout << "please select Option 1 to create a department or \nOption 4 to retrieve data from the files.\n";
+	}
+
+	else if (currentEmpl < MAX_EMPLOYEE)
+	{
+		cout << "\n\n---CREATE AN EMPLOYEE---\n";
+		cout << "Please fill out the following information for the employee." << endl;
+		cout << "Employee ID: ";
+		cin.ignore();
+		getline(cin, employeeInfo[currentEmpl].employeeID);
+
+		/// make sure employeeID does NOT already exist in the array containing Department objects
+		// IF it does NOT, insert Employee object into the array
+		if (currentEmpl != 0)
+		{
+			for (int previous = 0; previous < currentEmpl; previous++)
+			{
+				while (employeeInfo[currentEmpl].employeeID == employeeInfo[previous].employeeID)
+				{
+					cout << "That Employee ID already exists! Please enter a different Employee ID.\n";
+					cout << "Employee ID: ";
+					getline(cin, employeeInfo[currentEmpl].employeeID);
+				}
+			}
+		}
+		// if id is good, continue and create object in array
+		cout << "Employee Name: ";
+		getline(cin, employeeInfo[currentEmpl].employeeName);
+
+		cout << "Employee Salary: $";
+		cin >> employeeInfo[currentEmpl].employeeSalary;
+
+		cout << "Employee Age: ";
+		cin >> employeeInfo[currentEmpl].employeeAge;
+
+		cout << "Employee Department ID: ";
+		cin.ignore();
+		getline(cin, employeeInfo[currentEmpl].employeeDepartmentID);
+
+		bool match = false;
+
+		while (match == false)
+		{
+			for (int previous = 0; previous < MAX_DEPT && match == false; previous++)
+			{
+				if (employeeInfo[currentEmpl].employeeDepartmentID == dptAccess.departmentInfo[previous].departmentID)
+				{
+					match = true;
+					break;
+				}
+				else
+				{
+					match = false;
+				}
+			}
+
+			if (match == false)
+			{
+				cout << "That Department ID does not exist! Please enter a valid Employee Department ID.\n";
+				cout << "Employee Department ID: ";
+				getline(cin, employeeInfo[currentEmpl].employeeDepartmentID);
+			}
+		}
+	}
+}
+
+void EmployeeArray::writeEmployeeData()		// OPTION 3
+{
+	ofstream writeEmplData;
+
+	for (int index = 0; index < MAX_EMPLOYEE; index++)
+	{
+		// open output file
+		writeEmplData.open("employeeArray" + to_string(index + 1) + ".txt");
+		if (writeEmplData.is_open())
+		{
+			writeEmplData << employeeInfo[index].employeeID << endl;
+			writeEmplData << employeeInfo[index].employeeName << endl;
+			writeEmplData << employeeInfo[index].employeeSalary << endl;
+			writeEmplData << employeeInfo[index].employeeAge << endl;
+			writeEmplData << employeeInfo[index].employeeDepartmentID << endl;
+		}
+		// close file
+		writeEmplData.close();
+	}
+}
+
+void EmployeeArray::retrieveEmployeeData(int& currentEmpl)			// OPTION 4
+{
+	ifstream dptDataIn;
+	int currentEmplArray = 0;
+
+	for (int index = 0; index < MAX_EMPLOYEE; index++)
+	{
+		dptDataIn.open("employeeArray" + to_string(index + 1) + ".txt");
+		if (!dptDataIn)
+			cout << "Error opening file.\n";
+		else
+		{
+			dptDataIn >> employeeInfo[index].employeeID;
+			dptDataIn >> employeeInfo[index].employeeName;
+			dptDataIn >> employeeInfo[index].employeeSalary;
+			dptDataIn >> employeeInfo[index].employeeAge;
+			dptDataIn >> employeeInfo[index].employeeDepartmentID;
+			if (employeeInfo[index].employeeID != "N/A" && employeeInfo[index].employeeName != "N/A" && employeeInfo[index].employeeSalary != 0.00 && employeeInfo[index].employeeAge != 0 && employeeInfo[index].employeeDepartmentID != "N/A")
+			{
+				if (currentEmpl < MAX_EMPLOYEE)
+				{
+					currentEmplArray++;
+				}
+			}
+			cout << "Your data has been retrieved!\n";
+		}
+		currentEmpl = currentEmplArray;
+		// close file
+		dptDataIn.close();
+
+	}
+}
+
+void EmployeeArray::displaySalaryReport(DepartmentArray dptAccess)
+{
+	cout << fixed << showpoint << setprecision(2);
+
+	cout << "\n\n\n                    Salary Report: Total Salary Paid for Each Department\n";
+	cout << "---------------------------------------------------------------------------------------------\n";
+	cout << left << setw(25) << "Department Name:" << left << setw(25) << "Department ID:" << left << setw(25) << "Department Head:" << "Total Salary Paid:" << endl;
+
+	// DEPARTMENT 1
+	double totalDpt1 = 0;
+	for (int index = 0; index < MAX_EMPLOYEE; index++)
+	{
+		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[0].departmentID)
+		{
+			totalDpt1 += employeeInfo[index].employeeSalary;
+		}
+	}
+	cout << left << setw(25) << dptAccess.departmentInfo[0].departmentName << left << setw(25) << dptAccess.departmentInfo[0].departmentID << left << setw(25) << dptAccess.departmentInfo[0].departmentHeadName << "$ " << totalDpt1 << endl;
+
+	// DEPARTMENT 2
+	double totalDpt2 = 0;
+	for (int index = 0; index < MAX_EMPLOYEE; index++)
+	{
+		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[1].departmentID)
+		{
+			totalDpt2 += employeeInfo[index].employeeSalary;
+		}
+	}
+	cout << left << setw(25) << dptAccess.departmentInfo[1].departmentName << left << setw(25) << dptAccess.departmentInfo[1].departmentID << left << setw(25) << dptAccess.departmentInfo[1].departmentHeadName << "$ " << totalDpt2 << endl;
+
+	// DEPARTMENT 3
+	double totalDpt3 = 0;
+	for (int index = 0; index < MAX_EMPLOYEE; index++)
+	{
+		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[2].departmentID)
+		{
+			totalDpt3 += employeeInfo[index].employeeSalary;
+		}
+	}
+	cout << left << setw(25) << dptAccess.departmentInfo[2].departmentName << left << setw(25) << dptAccess.departmentInfo[2].departmentID << left << setw(25) << dptAccess.departmentInfo[2].departmentHeadName << "$ " << totalDpt3 << endl;
+
+}
+/* --------------------------------------------CLIENT PROGRAM-------------------------------------------- */
+
+// PROTOTYPES 
+void displayMenu();
+void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl, EmployeeArray& emplAccess, bool& saved, bool& quit);
+
+int main()
+{
+	Department departmentInfo; 
+	
+	// create file object and open the file 
+	fstream departmentInfo("dpt.txt", ios::in | ios::binary);
+		if (!departmentInfo)
+		{
+			cout << "Error opening file. Program will abort.\n";
+			return 0;
+		}
+
+
+
+
+
+	// FROM MIDTERM 
+	char anotherOption;
+	char quitProgram;
+	int currentDept = 0;
+	int currentEmployee = 0;
+	bool saved = false;
+	bool quit = false;
+	DepartmentArray departmentAccess;
+	EmployeeArray employeeAccess;
+
+	cout << "Choose from the menu below using options 1 through 6. \n\n";
+	do
+	{
+		displayMenu();
+		chooseOption(currentDept, departmentAccess, currentEmployee, employeeAccess, saved, quit);
+
+		if (quit == true)
+		{
+			if (saved == false)
+			{
+				cout << "\nYou are about to exit the program. The data has not been saved and will be lost.\n";
+				cout << "You can save your data by selecting option 3.\n";
+				cout << "Do you wish to continue to exit the program? Enter Y for yes or N for no: ";
+				cin >> quitProgram;
+				while (quitProgram != 'Y' && quitProgram != 'y' && quitProgram != 'N' && quitProgram != 'n')
+				{
+					cout << "Press Y for yes or N for No: ";
+					cin >> quitProgram;
+				}
+				if (quitProgram == 'Y' || quitProgram == 'y')
+				{
+					break;
+				}
+			}
+			else
+				break;
+		}
+
+		cout << "Would you like to select another option? Enter Y for yes or N for no: ";
+		cin >> anotherOption;
+
+		while (anotherOption != 'Y' && anotherOption != 'y' && anotherOption != 'N' && anotherOption != 'n')
+		{
+			cout << "Press Y for yes or N for No: ";
+			cin >> anotherOption;
+		}
+		cout << endl;
+
+		if (anotherOption == 'N' || anotherOption == 'n')
+		{
+			if (saved == false)
+			{
+				cout << "You are about to exit the program. The data has not been saved and will be lost.\n";
+				cout << "You can save your data by selecting option 3.\n";
+				cout << "Do you wish to continue to exit the program? Enter Y for yes or N for no: ";
+				cin >> quitProgram;
+				while (quitProgram != 'Y' && quitProgram != 'y' && quitProgram != 'N' && quitProgram != 'n')
+				{
+					cout << "Press Y for yes or N for No: ";
+					cin >> quitProgram;
+				}
+				if (quitProgram == 'Y' || quitProgram == 'y')
+				{
+					break;
+				}
+				else if (quitProgram == 'N' || quitProgram == 'n')
+				{
+					cout << "\nChoose from the menu below using options 1 through 6. \n\n";
+					anotherOption = 'Y';
+				}
+			}
+		}
+
+	} while (anotherOption != 'N' && anotherOption != 'n');
+
+	// write data to the file, when the user selects this option, dump the info in each array into a separate file
+	// RETRIEVE data from file
+	// when user selects this OPTION
+	// open each file, load the data from the file into the appropriate array
+	// DISPLAY REPORT:
+	// when user selects this OPTION
+	// go through arrays and display TOTAL SALARY paid for each department
+	// IF user tries to exit program without saving file
+	// ALERT user that data has not been saved and will be lost
+	// Proceed only if user consents
+	system("pause");
+	return 0;
+}
+
+void displayMenu()
+{
+	cout << "MENU\n";
+	cout << "----\n";
+	cout << "1. Create Department\n";
+	cout << "2. Create Employee\n";
+	cout << "3. Write the data to the file\n";
+	cout << "4. Retrieve data from the file\n";
+	cout << "5. Display Report\n";
+	cout << "6. Quit the Program\n";
+}
+
+void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl, EmployeeArray& emplAccess, bool& saved, bool& quit)
+{
+	int choice;
+	cout << "Enter selection: ";
+	cin >> choice;
+
+	switch (choice)
+	{
+	case 1:
+	{
+		if (currentDpt < MAX_DEPT)
+		{
+			dptAccess.createDepartment(currentDpt);		// number of stored items (max is 3)
+			currentDpt++;
+		}
+		else
+		{
+			// when array is fully, display error message to the user "The array is full, you can not add any more departments"
+			if (currentDpt == MAX_DEPT)
+			{
+				cout << "ERROR: The array is full, you can not add any more departments!\n";
+			}
+		}
+		break;
+	}
+	case 2:
+	{
+		if (currentEmpl < MAX_EMPLOYEE)
+		{
+			emplAccess.createEmployee(currentEmpl, dptAccess);		// number of stored items (max is 7)
+			currentEmpl++;
+		}
+		else
+		{
+			// when array is fully, display error message to the user "The array is full, you can not add any more employees"
+			if (currentEmpl == MAX_EMPLOYEE)
+			{
+				cout << "ERROR: The array is full, you can not add any more employees!\n";
+			}
+		}
+		break;
+	}
+	case 3:
+	{
+		dptAccess.writeDepartmentData();
+		emplAccess.writeEmployeeData();
+		saved = true;
+		cout << "Your data has been saved!\n";
+		break;
+	}
+	case 4:
+	{
+		dptAccess.retrieveDepartmentData(currentDpt);
+		emplAccess.retrieveEmployeeData(currentEmpl);
+		break;
+	}
+	case 5:
+	{
+		emplAccess.displaySalaryReport(dptAccess);
+		break;
+	}
+	case 6:
+	{
+		// QUIT PROGRAM
+		quit = true;
+		break;
+	}
+	// INPUT VALIDATION: only accept valid menu choices 
+	default:
+	{
+		cout << "\nSelect a valid option.\n";
+		break;
+	}
+	}
+}
+
+
+
