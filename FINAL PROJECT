@@ -44,8 +44,10 @@ Please read the chapter . Advance File/IO operations which has examples on how t
 #include <iomanip>
 #include <fstream>
 #include <limits>
+#include <stdlib.h> /* exit, EXIT_FAILURE */
 using namespace std;
 
+const int MAX_DEPT = 3, MAX_EMPLOYEE = 7;
 const int ID_SIZE = 20, NAME_SIZE = 50;
 
 ///* --------------------------------------------DEPARTMENT STRUCTURE-------------------------------------------- *///
@@ -54,13 +56,6 @@ struct Department
 	char departmentID[ID_SIZE];
 	char departmentName[NAME_SIZE];
 	char departmentHeadName[NAME_SIZE];
-};
-
-///* --------------------------------------------DEPARTMENTARRAY STRUCT-------------------------------------------- *///
-const int MAX_DEPT = 3;
-struct DepartmentArray
-{
-	Department departmentInfo[MAX_DEPT];
 
 	// PROTOTYPES
 	void createDepartment(int& currentDept);
@@ -68,46 +63,9 @@ struct DepartmentArray
 	void retrieveDepartmentData(int& currentDpt);			// OPTION 4	
 };
 
-void DepartmentArray::createDepartment(int& currentDept)
-{
-	// create Department
-	// collect all information about a department
 
 
-	if (currentDept < MAX_DEPT)
-	{
-		cout << "\n\n---CREATE A DEPARTMENT---\n";
-		cout << "Please fill out the following information for the department." << endl;
-		cout << "Department ID: ";
-		cin.ignore();
-		getline(cin, departmentInfo[currentDept].departmentID);
-
-		/// make sure departmentID does NOT already exist in the array containing Department objects
-		// IF it does NOT, insert Department object into the array
-		if (currentDept != 0)
-		{
-			for (int previous = 0; previous < currentDept; previous++)
-			{
-				while (departmentInfo[currentDept].departmentID == departmentInfo[previous].departmentID)
-				{
-					cout << "That Department ID already exists! Please enter a different department ID.\n";
-					cout << "Department ID: ";
-					getline(cin, departmentInfo[currentDept].departmentID);
-				}
-			}
-
-		}
-		// if id is good, continue and create object in array
-		cout << "Department Name: ";
-		getline(cin, departmentInfo[currentDept].departmentName);
-
-		cout << "Name of the Head of the Department: ";
-		getline(cin, departmentInfo[currentDept].departmentHeadName);
-	}
-
-}
-
-void DepartmentArray::writeDepartmentData()		// OPTION 3
+void Department::writeDepartmentData()		// OPTION 3
 {
 	ofstream writeDptData;
 
@@ -127,7 +85,7 @@ void DepartmentArray::writeDepartmentData()		// OPTION 3
 	}
 }
 
-void DepartmentArray::retrieveDepartmentData(int& currentDpt)			// OPTION 4
+void Department::retrieveDepartmentData(int& currentDpt)			// OPTION 4
 {
 	ifstream dptDataIn;
 	int currentDeptArray = 0;
@@ -163,11 +121,11 @@ void DepartmentArray::retrieveDepartmentData(int& currentDpt)			// OPTION 4
 struct Employee
 {
 	// member variables
-	string employeeID;
-	string employeeName;
+	char employeeID[ID_SIZE];
+	char employeeName[NAME_SIZE];
 	double employeeSalary;
 	int employeeAge;
-	string employeeDepartmentID;
+	char employeeDepartmentID[ID_SIZE];
 
 	// DEFAULT CONSTRUCTOR
 	Employee()
@@ -178,36 +136,26 @@ struct Employee
 		employeeAge = 0;
 		employeeDepartmentID = "N/A";
 	}
-
-};
-
-///* --------------------------------------------EMPLOYEEARRAY STRUCT-------------------------------------------- *///
-const int MAX_EMPLOYEE = 7;
-struct EmployeeArray
-{
-	Employee employeeInfo[MAX_EMPLOYEE];
-
+	
 	// PROTOTYPES
 	void createEmployee(int& currentEmpl, DepartmentArray dptAccess);
 	void writeEmployeeData();				// OPTION 3
 	void retrieveEmployeeData(int& currentEmpl);			// OPTION 4
-	void displaySalaryReport(DepartmentArray dptAccess);			// OPTION 5
+	void displayReport(DepartmentArray dptAccess);			// OPTION 5
+
 };
 
-void EmployeeArray::createEmployee(int& currentEmpl, DepartmentArray dptAccess)
+
+void Employee::createEmployee(int& currentEmpl, DepartmentArray dptAccess)
 {
-	// create Employee
-	// collect all information about an employee
-
-	if (dptAccess.departmentInfo[0].departmentID == "N/A" && dptAccess.departmentInfo[1].departmentID == "N/A" && dptAccess.departmentInfo[2].departmentID == "N/A")
+	// create Employee file object and open file
+	fstream employeeFile("employees.txt", ios::out | ios::binary);
+	if (!employeeFile)
 	{
-		cout << "\nThere are no departments available!\n";
-		cout << "Before you create an employee, ";
-		cout << "please select Option 1 to create a department or \nOption 4 to retrieve data from the files.\n";
+		cout << "Error opening file. Program will now abort.";
+		exit(EXIT_FAILURE);
 	}
-
-	else if (currentEmpl < MAX_EMPLOYEE)
-	{
+	// collect all information about an employee
 		cout << "\n\n---CREATE AN EMPLOYEE---\n";
 		cout << "Please fill out the following information for the employee." << endl;
 		cout << "Employee ID: ";
@@ -269,7 +217,7 @@ void EmployeeArray::createEmployee(int& currentEmpl, DepartmentArray dptAccess)
 	}
 }
 
-void EmployeeArray::writeEmployeeData()		// OPTION 3
+void Employee::writeEmployeeData()		// OPTION 3
 {
 	ofstream writeEmplData;
 
@@ -290,7 +238,7 @@ void EmployeeArray::writeEmployeeData()		// OPTION 3
 	}
 }
 
-void EmployeeArray::retrieveEmployeeData(int& currentEmpl)			// OPTION 4
+void Employee::retrieveEmployeeData(int& currentEmpl)			// OPTION 4
 {
 	ifstream dptDataIn;
 	int currentEmplArray = 0;
@@ -323,7 +271,7 @@ void EmployeeArray::retrieveEmployeeData(int& currentEmpl)			// OPTION 4
 	}
 }
 
-void EmployeeArray::displaySalaryReport(DepartmentArray dptAccess)
+void Employee::displayReport(DepartmentArray dptAccess)
 {
 	cout << fixed << showpoint << setprecision(2);
 
@@ -369,24 +317,14 @@ void EmployeeArray::displaySalaryReport(DepartmentArray dptAccess)
 
 // PROTOTYPES 
 void displayMenu();
-void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl, EmployeeArray& emplAccess, bool& saved, bool& quit);
+void chooseOption(int& currentDpt, Department& dptAccess, int& currentEmpl, Employee& emplAccess, bool& saved, bool& quit);
+void createDepartment(int& currentDept);
 
 int main()
 {
-	Department departmentInfo; 
+	Department departmentInfo;
+	Employee employeeInfo;
 	
-	// create file object and open the file 
-	fstream departmentInfo("dpt.txt", ios::in | ios::binary);
-		if (!departmentInfo)
-		{
-			cout << "Error opening file. Program will abort.\n";
-			return 0;
-		}
-
-
-
-
-
 	// FROM MIDTERM 
 	char anotherOption;
 	char quitProgram;
@@ -394,14 +332,14 @@ int main()
 	int currentEmployee = 0;
 	bool saved = false;
 	bool quit = false;
-	DepartmentArray departmentAccess;
-	EmployeeArray employeeAccess;
+
+	
 
 	cout << "Choose from the menu below using options 1 through 6. \n\n";
 	do
 	{
 		displayMenu();
-		chooseOption(currentDept, departmentAccess, currentEmployee, employeeAccess, saved, quit);
+		chooseOption(currentDept, departmentInfo, currentEmployee, departmentInfo, saved, quit);
 
 		if (quit == true)
 		{
@@ -476,19 +414,23 @@ int main()
 	return 0;
 }
 
+/*//////////////////////////////////////////////////////////////////////////////////////////////
+DISPLAY MENU OPTIONS
+//////////////////////////////////////////////////////////////////////////////////////////////*/
+
 void displayMenu()
 {
 	cout << "MENU\n";
 	cout << "----\n";
 	cout << "1. Create Department\n";
 	cout << "2. Create Employee\n";
-	cout << "3. Write the data to the file\n";
-	cout << "4. Retrieve data from the file\n";
+	cout << "3. Edit Department\n";
+	cout << "4. Edit Employee\n";
 	cout << "5. Display Report\n";
 	cout << "6. Quit the Program\n";
 }
 
-void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl, EmployeeArray& emplAccess, bool& saved, bool& quit)
+void chooseOption(int& currentDpt, Department& dptAccess, int& currentEmpl, Employee& emplAccess, bool& saved, bool& quit)
 {
 	int choice;
 	cout << "Enter selection: ";
@@ -496,24 +438,12 @@ void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl,
 
 	switch (choice)
 	{
-	case 1:
+	case 1:			// CREATE DEPARTMENT
 	{
-		if (currentDpt < MAX_DEPT)
-		{
-			dptAccess.createDepartment(currentDpt);		// number of stored items (max is 3)
-			currentDpt++;
-		}
-		else
-		{
-			// when array is fully, display error message to the user "The array is full, you can not add any more departments"
-			if (currentDpt == MAX_DEPT)
-			{
-				cout << "ERROR: The array is full, you can not add any more departments!\n";
-			}
-		}
+		dptAccess.createDepartment();
 		break;
 	}
-	case 2:
+	case 2:			// CREATE EMPLOYEE
 	{
 		if (currentEmpl < MAX_EMPLOYEE)
 		{
@@ -530,23 +460,18 @@ void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl,
 		}
 		break;
 	}
-	case 3:
+	case 3:			// EDIT DEPARTMENT
 	{
-		dptAccess.writeDepartmentData();
-		emplAccess.writeEmployeeData();
-		saved = true;
-		cout << "Your data has been saved!\n";
 		break;
 	}
-	case 4:
+	case 4:			// EDIT EMPLOYEE	
 	{
-		dptAccess.retrieveDepartmentData(currentDpt);
-		emplAccess.retrieveEmployeeData(currentEmpl);
+		
 		break;
 	}
 	case 5:
 	{
-		emplAccess.displaySalaryReport(dptAccess);
+		emplAccess.displayReport(dptAccess);
 		break;
 	}
 	case 6:
@@ -564,5 +489,53 @@ void chooseOption(int& currentDpt, DepartmentArray& dptAccess, int& currentEmpl,
 	}
 }
 
+void createDepartment(int& currentDept)
+{
+	char response;		// user input
+	string input;		// used to read strings
+
+						// create Department file object and open file
+	fstream departmentFile("departments.txt", ios::out | ios::binary);
+	if (!departmentFile)
+	{
+		cout << "Error opening file. Program will now abort.";
+		exit(EXIT_FAILURE);
+	}
+
+	// collect all information about a department
+	{
+		cout << "\n\n---CREATE A DEPARTMENT---\n";
+		cout << "Please fill out the following information for the department." << endl;
+		cout << "Department ID: ";
+		cin.ignore();
+		getline(cin, input);
+		strcpy(departmentID, input.c_str());
+
+		/// make sure departmentID does NOT already exist 
+		// IF it does NOT, insert Department object into the file
+		if (currentDept != 0)
+		{
+			for (int previous = 0; previous < currentDept; previous++)
+			{
+				while (departmentInfo[currentDept].departmentID == departmentInfo[previous].departmentID)
+				{
+					cout << "That Department ID already exists! Please enter a different department ID.\n";
+					cout << "Department ID: ";
+					getline(cin, departmentInfo[currentDept].departmentID);
+				}
+			}
+
+		}
+		// if id is good, continue and create object in array
+		cout << "Department Name: ";
+		getline(cin, input);
+		strcpy(departmentName, input.c_str());
+
+		cout << "Name of the Head of the Department: ";
+		getline(cin, input);
+		strcpy(departmentHeadName, input.c_str());
+
+		// departmentFile write(reinterpret_cast<char *>(&deptAcces), sizeof(departmentFile));
+	}
 
 
