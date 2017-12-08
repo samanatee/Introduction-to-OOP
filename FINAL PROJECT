@@ -1,541 +1,114 @@
 // Samantha Hangsan
-// ID: 900029599
-// CS 939 
-// FINAL PROJECT
+// CS 939 - Homework 8 (Pointers)
+// TEST SCORES #2
 
-/*//////////////////////////////////////////////////////////////////////////////////////////////
-PROJECT SPECS: 
+// modify program 1 to allow user to enter name-score pairs
+	// for each student taking a test, user types a string (name of student) and an integer (student's score)
+// modify the sorting and average-calculating functions, so they take arrays of structures
+// each structure should contain the name and score of a single student
 
-The purpose of this project is to take your Midterm project  and  implement it using Random Access Binary Files.
-As you recall, the Midterm project used text files to store the data. Here in the final exam project,
-you will be storing the data in Random Access Binary File.
-
-Also, in the Midterm project you used Arrays to temporarily hold the data in the memory until the user
-decides to write the data to file. Here you will NOT be using Arrays and instead writing the
-data directly to Random Access Binary File(This is a must).
-Please read the chapter Advance File and I/O operations
-before attempting this.
-
-Here is the full description of the Final exam project.
-
-Modify your Midterm Exam Project to:
-
-1. Replace  Employee and Department classes with Employee and Department Structures.
-
-2. Inside each structure, replace all string variables with  array of characters.
-
-3. Make Employee and Department editable. That means, the user should be able to edit a given Employee and Department.
-
-4. Do not allow the user to edit the Employee ID and Department ID.
-
-5. Use Random Access Files to store the data in Binary Form. This means, you should not use an Arrays to
-store the data in the memory. Instead, when the user wants to create a new Employee/Department,
-you write it to the file right away. Also when the user says he/she wants to edit
-an Employee/Department, ask the user to enter EmployeeID/DepartmentID.
-Read the data from the file and display it to the user.
-Allow the user to enter new data and write it back to the file in the same position inside the file.
-Please read the chapter . Advance File/IO operations which has examples on how to do this.
-
-//////////////////////////////////////////////////////////////////////////////////////////////*/
-
+// in traversing the arrays, use pointers, rather than array indices
 
 #include <iostream>
-#include <string>
 #include <iomanip>
-#include <fstream>
-#include <limits>
-#include <stdlib.h> /* exit, EXIT_FAILURE */
+#include <string>
 using namespace std;
 
-const int MAX_DEPT = 3, MAX_EMPLOYEE = 7;
-const int ID_SIZE = 20, NAME_SIZE = 50;
-
-///* --------------------------------------------DEPARTMENT STRUCTURE-------------------------------------------- *///
-struct Department
+struct StudentScore
 {
-	char departmentID[ID_SIZE];
-	char departmentName[NAME_SIZE];
-	char departmentHeadName[NAME_SIZE];
-
-	// PROTOTYPES
-	void createDepartment(int& currentDept);
-	void writeDepartmentData();				// OPTION 3
-	void retrieveDepartmentData(int& currentDpt);			// OPTION 4	
+	string Name; 
+	int Score; 
 };
 
+// PROTOTYPE
+void sortArray(StudentScore *arr, int size);
+double getAverage(StudentScore *arr, int size);
 
-
-void Department::writeDepartmentData()		// OPTION 3
-{
-	ofstream writeDptData;
-
-	for (int index = 0; index < MAX_DEPT; index++)
-	{
-		// open output file
-		writeDptData.open("departmentArray" + to_string(index + 1) + ".txt");
-
-		if (writeDptData.is_open())
-		{
-			writeDptData << departmentInfo[index].departmentID << endl;
-			writeDptData << departmentInfo[index].departmentName << endl;
-			writeDptData << departmentInfo[index].departmentHeadName << endl;
-		}
-		// close file
-		writeDptData.close();
-	}
-}
-
-void Department::retrieveDepartmentData(int& currentDpt)			// OPTION 4
-{
-	ifstream dptDataIn;
-	int currentDeptArray = 0;
-
-	for (int index = 0; index < MAX_DEPT; index++)
-	{
-		dptDataIn.open("departmentArray" + to_string(index + 1) + ".txt");
-		if (!dptDataIn)
-			cout << "Error opening file.\n";
-		else
-		{
-			dptDataIn >> departmentInfo[index].departmentID;
-			dptDataIn >> departmentInfo[index].departmentName;
-			dptDataIn >> departmentInfo[index].departmentHeadName;
-			if (departmentInfo[index].departmentID != "N/A" && departmentInfo[index].departmentName != "N/A" && departmentInfo[index].departmentHeadName != "N/A")
-			{
-				if (currentDeptArray < MAX_DEPT)
-				{
-					currentDeptArray++;
-				}
-			}
-			cout << "Your data has been retrieved!\n";
-		}
-		currentDpt = currentDeptArray;
-		// close file
-		dptDataIn.close();
-	}
-}
-
-
-///* --------------------------------------------EMPLOYEE STRUCTURE-------------------------------------------- *///
-
-struct Employee
-{
-	// member variables
-	char employeeID[ID_SIZE];
-	char employeeName[NAME_SIZE];
-	double employeeSalary;
-	int employeeAge;
-	char employeeDepartmentID[ID_SIZE];
-
-	// DEFAULT CONSTRUCTOR
-	Employee()
-	{
-		employeeID = "N/A";
-		employeeName = "N/A";
-		employeeSalary = 0.00;
-		employeeAge = 0;
-		employeeDepartmentID = "N/A";
-	}
-	
-	// PROTOTYPES
-	void createEmployee(int& currentEmpl, DepartmentArray dptAccess);
-	void writeEmployeeData();				// OPTION 3
-	void retrieveEmployeeData(int& currentEmpl);			// OPTION 4
-	void displayReport(DepartmentArray dptAccess);			// OPTION 5
-
-};
-
-
-void Employee::createEmployee(int& currentEmpl, DepartmentArray dptAccess)
-{
-	// create Employee file object and open file
-	fstream employeeFile("employees.txt", ios::out | ios::binary);
-	if (!employeeFile)
-	{
-		cout << "Error opening file. Program will now abort.";
-		exit(EXIT_FAILURE);
-	}
-	// collect all information about an employee
-		cout << "\n\n---CREATE AN EMPLOYEE---\n";
-		cout << "Please fill out the following information for the employee." << endl;
-		cout << "Employee ID: ";
-		cin.ignore();
-		getline(cin, employeeInfo[currentEmpl].employeeID);
-
-		/// make sure employeeID does NOT already exist in the array containing Department objects
-		// IF it does NOT, insert Employee object into the array
-		if (currentEmpl != 0)
-		{
-			for (int previous = 0; previous < currentEmpl; previous++)
-			{
-				while (employeeInfo[currentEmpl].employeeID == employeeInfo[previous].employeeID)
-				{
-					cout << "That Employee ID already exists! Please enter a different Employee ID.\n";
-					cout << "Employee ID: ";
-					getline(cin, employeeInfo[currentEmpl].employeeID);
-				}
-			}
-		}
-		// if id is good, continue and create object in array
-		cout << "Employee Name: ";
-		getline(cin, employeeInfo[currentEmpl].employeeName);
-
-		cout << "Employee Salary: $";
-		cin >> employeeInfo[currentEmpl].employeeSalary;
-
-		cout << "Employee Age: ";
-		cin >> employeeInfo[currentEmpl].employeeAge;
-
-		cout << "Employee Department ID: ";
-		cin.ignore();
-		getline(cin, employeeInfo[currentEmpl].employeeDepartmentID);
-
-		bool match = false;
-
-		while (match == false)
-		{
-			for (int previous = 0; previous < MAX_DEPT && match == false; previous++)
-			{
-				if (employeeInfo[currentEmpl].employeeDepartmentID == dptAccess.departmentInfo[previous].departmentID)
-				{
-					match = true;
-					break;
-				}
-				else
-				{
-					match = false;
-				}
-			}
-
-			if (match == false)
-			{
-				cout << "That Department ID does not exist! Please enter a valid Employee Department ID.\n";
-				cout << "Employee Department ID: ";
-				getline(cin, employeeInfo[currentEmpl].employeeDepartmentID);
-			}
-		}
-	}
-}
-
-void Employee::writeEmployeeData()		// OPTION 3
-{
-	ofstream writeEmplData;
-
-	for (int index = 0; index < MAX_EMPLOYEE; index++)
-	{
-		// open output file
-		writeEmplData.open("employeeArray" + to_string(index + 1) + ".txt");
-		if (writeEmplData.is_open())
-		{
-			writeEmplData << employeeInfo[index].employeeID << endl;
-			writeEmplData << employeeInfo[index].employeeName << endl;
-			writeEmplData << employeeInfo[index].employeeSalary << endl;
-			writeEmplData << employeeInfo[index].employeeAge << endl;
-			writeEmplData << employeeInfo[index].employeeDepartmentID << endl;
-		}
-		// close file
-		writeEmplData.close();
-	}
-}
-
-void Employee::retrieveEmployeeData(int& currentEmpl)			// OPTION 4
-{
-	ifstream dptDataIn;
-	int currentEmplArray = 0;
-
-	for (int index = 0; index < MAX_EMPLOYEE; index++)
-	{
-		dptDataIn.open("employeeArray" + to_string(index + 1) + ".txt");
-		if (!dptDataIn)
-			cout << "Error opening file.\n";
-		else
-		{
-			dptDataIn >> employeeInfo[index].employeeID;
-			dptDataIn >> employeeInfo[index].employeeName;
-			dptDataIn >> employeeInfo[index].employeeSalary;
-			dptDataIn >> employeeInfo[index].employeeAge;
-			dptDataIn >> employeeInfo[index].employeeDepartmentID;
-			if (employeeInfo[index].employeeID != "N/A" && employeeInfo[index].employeeName != "N/A" && employeeInfo[index].employeeSalary != 0.00 && employeeInfo[index].employeeAge != 0 && employeeInfo[index].employeeDepartmentID != "N/A")
-			{
-				if (currentEmpl < MAX_EMPLOYEE)
-				{
-					currentEmplArray++;
-				}
-			}
-			cout << "Your data has been retrieved!\n";
-		}
-		currentEmpl = currentEmplArray;
-		// close file
-		dptDataIn.close();
-
-	}
-}
-
-void Employee::displayReport(DepartmentArray dptAccess)
-{
-	cout << fixed << showpoint << setprecision(2);
-
-	cout << "\n\n\n                    Salary Report: Total Salary Paid for Each Department\n";
-	cout << "---------------------------------------------------------------------------------------------\n";
-	cout << left << setw(25) << "Department Name:" << left << setw(25) << "Department ID:" << left << setw(25) << "Department Head:" << "Total Salary Paid:" << endl;
-
-	// DEPARTMENT 1
-	double totalDpt1 = 0;
-	for (int index = 0; index < MAX_EMPLOYEE; index++)
-	{
-		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[0].departmentID)
-		{
-			totalDpt1 += employeeInfo[index].employeeSalary;
-		}
-	}
-	cout << left << setw(25) << dptAccess.departmentInfo[0].departmentName << left << setw(25) << dptAccess.departmentInfo[0].departmentID << left << setw(25) << dptAccess.departmentInfo[0].departmentHeadName << "$ " << totalDpt1 << endl;
-
-	// DEPARTMENT 2
-	double totalDpt2 = 0;
-	for (int index = 0; index < MAX_EMPLOYEE; index++)
-	{
-		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[1].departmentID)
-		{
-			totalDpt2 += employeeInfo[index].employeeSalary;
-		}
-	}
-	cout << left << setw(25) << dptAccess.departmentInfo[1].departmentName << left << setw(25) << dptAccess.departmentInfo[1].departmentID << left << setw(25) << dptAccess.departmentInfo[1].departmentHeadName << "$ " << totalDpt2 << endl;
-
-	// DEPARTMENT 3
-	double totalDpt3 = 0;
-	for (int index = 0; index < MAX_EMPLOYEE; index++)
-	{
-		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[2].departmentID)
-		{
-			totalDpt3 += employeeInfo[index].employeeSalary;
-		}
-	}
-	cout << left << setw(25) << dptAccess.departmentInfo[2].departmentName << left << setw(25) << dptAccess.departmentInfo[2].departmentID << left << setw(25) << dptAccess.departmentInfo[2].departmentHeadName << "$ " << totalDpt3 << endl;
-
-}
-/* --------------------------------------------CLIENT PROGRAM-------------------------------------------- */
-
-// PROTOTYPES 
-void displayMenu();
-void chooseOption(int& currentDpt, Department& dptAccess, int& currentEmpl, Employee& emplAccess, bool& saved, bool& quit);
-void createDepartment(int& currentDept);
 
 int main()
 {
-	Department departmentInfo;
-	Employee employeeInfo;
-	
-	// FROM MIDTERM 
-	char anotherOption;
-	char quitProgram;
-	int currentDept = 0;
-	int currentEmployee = 0;
-	bool saved = false;
-	bool quit = false;
+	StudentScore *Student;
 
-	
+	double average;
+	int numScores;
 
-	cout << "Choose from the menu below using options 1 through 6. \n\n";
-	do
+	// get number of scores
+	cout << "How many test scores do you wish to process? ";
+	cin >> numScores;
+
+	// program dynamically allocates an array large enough to hold a user-defined number of test scores
+	Student = new StudentScore[numScores];		// allocate memory
+
+										// get each test score
+	cout << "Enter the name and test score for each student below: \n";
+	for (int count = 0; count < numScores; count++)
 	{
-		displayMenu();
-		chooseOption(currentDept, departmentInfo, currentEmployee, departmentInfo, saved, quit);
-
-		if (quit == true)
+		cout << "Name of Student " << (count + 1) << ": ";
+		cin.ignore();
+		getline(cin, (Student + count)->Name);
+		cout << (Student + count)->Name << "'s score: ";
+		cin >> (Student + count)->Score;
+		while ((Student + count)->Score < 0)
 		{
-			if (saved == false)
-			{
-				cout << "\nYou are about to exit the program. The data has not been saved and will be lost.\n";
-				cout << "You can save your data by selecting option 3.\n";
-				cout << "Do you wish to continue to exit the program? Enter Y for yes or N for no: ";
-				cin >> quitProgram;
-				while (quitProgram != 'Y' && quitProgram != 'y' && quitProgram != 'N' && quitProgram != 'n')
-				{
-					cout << "Press Y for yes or N for No: ";
-					cin >> quitProgram;
-				}
-				if (quitProgram == 'Y' || quitProgram == 'y')
-				{
-					break;
-				}
-			}
-			else
-				break;
+			cout << "The score cannot be negative. Please enter a valid score: ";
+			cin >> (Student + count)->Score;
 		}
+	}
 
-		cout << "Would you like to select another option? Enter Y for yes or N for no: ";
-		cin >> anotherOption;
+	// when all scores are entered, the array should be passed to a function that sorts them in ascending order
+	sortArray(Student, numScores);
+	cout << "\n\nSorted list of scores in ascending order: \n";
+	for (int index = 0; index < numScores; index++)
+	{
+		cout << (Student + index)->Score << " ";
+	}
 
-		while (anotherOption != 'Y' && anotherOption != 'y' && anotherOption != 'N' && anotherOption != 'n')
-		{
-			cout << "Press Y for yes or N for No: ";
-			cin >> anotherOption;
-		}
-		cout << endl;
+	// another function should be called to calculate the average score
+	average = getAverage(Student, numScores);
 
-		if (anotherOption == 'N' || anotherOption == 'n')
-		{
-			if (saved == false)
-			{
-				cout << "You are about to exit the program. The data has not been saved and will be lost.\n";
-				cout << "You can save your data by selecting option 3.\n";
-				cout << "Do you wish to continue to exit the program? Enter Y for yes or N for no: ";
-				cin >> quitProgram;
-				while (quitProgram != 'Y' && quitProgram != 'y' && quitProgram != 'N' && quitProgram != 'n')
-				{
-					cout << "Press Y for yes or N for No: ";
-					cin >> quitProgram;
-				}
-				if (quitProgram == 'Y' || quitProgram == 'y')
-				{
-					break;
-				}
-				else if (quitProgram == 'N' || quitProgram == 'n')
-				{
-					cout << "\nChoose from the menu below using options 1 through 6. \n\n";
-					anotherOption = 'Y';
-				}
-			}
-		}
+	// program should display the sorted list of scores and averages with appropriate HEADINGS
+	cout << "\nAverage of the scores: " << average << "\n";
 
-	} while (anotherOption != 'N' && anotherOption != 'n');
+	// Use pointer notation and not array notation whenever possible
 
-	// write data to the file, when the user selects this option, dump the info in each array into a separate file
-	// RETRIEVE data from file
-	// when user selects this OPTION
-	// open each file, load the data from the file into the appropriate array
-	// DISPLAY REPORT:
-	// when user selects this OPTION
-	// go through arrays and display TOTAL SALARY paid for each department
-	// IF user tries to exit program without saving file
-	// ALERT user that data has not been saved and will be lost
-	// Proceed only if user consents
+	delete[] Student;
+	Student = 0;
+
+	// INPUT VALIDATION: do not accept negative numbers for test scores
 	system("pause");
 	return 0;
 }
 
-/*//////////////////////////////////////////////////////////////////////////////////////////////
-DISPLAY MENU OPTIONS
-//////////////////////////////////////////////////////////////////////////////////////////////*/
-
-void displayMenu()
+void sortArray(StudentScore *arr, int size)
 {
-	cout << "MENU\n";
-	cout << "----\n";
-	cout << "1. Create Department\n";
-	cout << "2. Create Employee\n";
-	cout << "3. Edit Department\n";
-	cout << "4. Edit Employee\n";
-	cout << "5. Display Report\n";
-	cout << "6. Quit the Program\n";
-}
+	double leastScore;
 
-void chooseOption(int& currentDpt, Department& dptAccess, int& currentEmpl, Employee& emplAccess, bool& saved, bool& quit)
-{
-	int choice;
-	cout << "Enter selection: ";
-	cin >> choice;
-
-	switch (choice)
+	for (int index = 0; index <= (size - 1); index++)
 	{
-	case 1:			// CREATE DEPARTMENT
-	{
-		dptAccess.createDepartment();
-		break;
-	}
-	case 2:			// CREATE EMPLOYEE
-	{
-		if (currentEmpl < MAX_EMPLOYEE)
+		leastScore = (arr + index)->Score;
+		for (int next = index + 1; next < size; next++)
 		{
-			emplAccess.createEmployee(currentEmpl, dptAccess);		// number of stored items (max is 7)
-			currentEmpl++;
-		}
-		else
-		{
-			// when array is fully, display error message to the user "The array is full, you can not add any more employees"
-			if (currentEmpl == MAX_EMPLOYEE)
+			if ((arr + next)->Score < leastScore)
 			{
-				cout << "ERROR: The array is full, you can not add any more employees!\n";
+				leastScore = (arr + next)->Score;
+				(arr + next)->Score = (arr + index)->Score;
+				(arr + index)->Score = leastScore;
 			}
 		}
-		break;
 	}
-	case 3:			// EDIT DEPARTMENT
-	{
-		break;
-	}
-	case 4:			// EDIT EMPLOYEE	
-	{
-		
-		break;
-	}
-	case 5:
-	{
-		emplAccess.displayReport(dptAccess);
-		break;
-	}
-	case 6:
-	{
-		// QUIT PROGRAM
-		quit = true;
-		break;
-	}
-	// INPUT VALIDATION: only accept valid menu choices 
-	default:
-	{
-		cout << "\nSelect a valid option.\n";
-		break;
-	}
-	}
+
 }
 
-void createDepartment(int& currentDept)
+double getAverage(StudentScore *arr, int size)
 {
-	char response;		// user input
-	string input;		// used to read strings
+	double sum = 0, avg;
 
-						// create Department file object and open file
-	fstream departmentFile("departments.txt", ios::out | ios::binary);
-	if (!departmentFile)
+
+	for (int index = 0; index < size; index++)
 	{
-		cout << "Error opening file. Program will now abort.";
-		exit(EXIT_FAILURE);
+		sum += (arr + index)->Score;
 	}
 
-	// collect all information about a department
-	{
-		cout << "\n\n---CREATE A DEPARTMENT---\n";
-		cout << "Please fill out the following information for the department." << endl;
-		cout << "Department ID: ";
-		cin.ignore();
-		getline(cin, input);
-		strcpy(departmentID, input.c_str());
-
-		/// make sure departmentID does NOT already exist 
-		// IF it does NOT, insert Department object into the file
-		if (currentDept != 0)
-		{
-			for (int previous = 0; previous < currentDept; previous++)
-			{
-				while (departmentInfo[currentDept].departmentID == departmentInfo[previous].departmentID)
-				{
-					cout << "That Department ID already exists! Please enter a different department ID.\n";
-					cout << "Department ID: ";
-					getline(cin, departmentInfo[currentDept].departmentID);
-				}
-			}
-
-		}
-		// if id is good, continue and create object in array
-		cout << "Department Name: ";
-		getline(cin, input);
-		strcpy(departmentName, input.c_str());
-
-		cout << "Name of the Head of the Department: ";
-		getline(cin, input);
-		strcpy(departmentHeadName, input.c_str());
-
-		// departmentFile write(reinterpret_cast<char *>(&deptAcces), sizeof(departmentFile));
-	}
-
-
+	avg = sum / size;
+	return avg;
+}
