@@ -4,7 +4,7 @@
 // FINAL PROJECT
 
 /*//////////////////////////////////////////////////////////////////////////////////////////////
-PROJECT SPECS: 
+PROJECT SPECS:
 
 The purpose of this project is to take your Midterm project  and  implement it using Random Access Binary Files.
 As you recall, the Midterm project used text files to store the data. Here in the final exam project,
@@ -130,12 +130,17 @@ struct Department
 
 /* --------------------------------------------CLIENT PROGRAM-------------------------------------------- */
 
-// PROTOTYPES 
+// MENU PROTOTYPES 
 void displayMenu();
 void chooseOption(Department& departmentInfo, Department* departmentPointer, int& currentDept);
+
+// DEPARTMENT PROTOTYPES
+long deptByteNum(int structNum);
 void createDepartment(Department& departmentInfo, Department* departmentPointer);
-//void createEmployee(int& currentEmpl, DepartmentArray dptAccess);
 void editDepartment(Department departmentInfo, Department* departmentPointer, const int currentDept);
+
+// EMPLOYEE PROTOTYPES
+//void createEmployee(int& currentEmpl, DepartmentArray dptAccess);
 void departmentRecords(Department departmentInfo);
 
 int main()
@@ -144,19 +149,19 @@ int main()
 	Department* departmentPointer;
 	departmentPointer = &departmentInfo;
 	//Employee employeeInfo;
-	
+
 	// FROM MIDTERM 
 	char anotherOption;
 	//char quitProgram;
 	int currentDept = 0;
 	int currentEmployee = 0;
-	
+
 	cout << "Choose from the menu below using options 1 through 6. \n\n";
 	do
 	{
 		displayMenu();
 		chooseOption(departmentInfo, departmentPointer, currentDept);
-		
+
 		cout << "Would you like to select another option? Enter Y for yes or N for no: ";
 		cin >> anotherOption;
 
@@ -169,27 +174,27 @@ int main()
 
 		/*if (anotherOption == 'N' || anotherOption == 'n')
 		{
-			if (saved == false)
-			{
-				cout << "You are about to exit the program. The data has not been saved and will be lost.\n";
-				cout << "You can save your data by selecting option 3.\n";
-				cout << "Do you wish to continue to exit the program? Enter Y for yes or N for no: ";
-				cin >> quitProgram;
-				while (quitProgram != 'Y' && quitProgram != 'y' && quitProgram != 'N' && quitProgram != 'n')
-				{
-					cout << "Press Y for yes or N for No: ";
-					cin >> quitProgram;
-				}
-				if (quitProgram == 'Y' || quitProgram == 'y')
-				{
-					break;
-				}
-				else if (quitProgram == 'N' || quitProgram == 'n')
-				{
-					cout << "\nChoose from the menu below using options 1 through 6. \n\n";
-					anotherOption = 'Y';
-				}
-			}
+		if (saved == false)
+		{
+		cout << "You are about to exit the program. The data has not been saved and will be lost.\n";
+		cout << "You can save your data by selecting option 3.\n";
+		cout << "Do you wish to continue to exit the program? Enter Y for yes or N for no: ";
+		cin >> quitProgram;
+		while (quitProgram != 'Y' && quitProgram != 'y' && quitProgram != 'N' && quitProgram != 'n')
+		{
+		cout << "Press Y for yes or N for No: ";
+		cin >> quitProgram;
+		}
+		if (quitProgram == 'Y' || quitProgram == 'y')
+		{
+		break;
+		}
+		else if (quitProgram == 'N' || quitProgram == 'n')
+		{
+		cout << "\nChoose from the menu below using options 1 through 6. \n\n";
+		anotherOption = 'Y';
+		}
+		}
 		}*/
 
 	} while (anotherOption != 'N' && anotherOption != 'n');
@@ -207,6 +212,7 @@ int main()
 	system("pause");
 	return 0;
 }
+
 
 /* --------------------------------------------DISPLAY MENU OPTIONS-------------------------------------------- */
 void displayMenu()
@@ -290,6 +296,12 @@ void chooseOption(Department& departmentInfo, Department* departmentPointer, int
 	}
 }
 
+/* --------------------------------------------DETERMINE DEPARTMENT BYTE NUMBER FUNCTION-------------------------------------------- */
+long deptByteNum(int structNum)
+{
+	return sizeof(Department) * structNum;
+}
+
 /* --------------------------------------------1.) CREATE DEPARTMENT-------------------------------------------- */
 void createDepartment(Department& departmentInfo, Department* departmentPointer)
 {
@@ -306,46 +318,46 @@ void createDepartment(Department& departmentInfo, Department* departmentPointer)
 
 	// collect all information about a department
 
-		cout << "\n\n---CREATE A DEPARTMENT---\n";
-		cout << "Please fill out the following information for the department." << endl;
-		cout << "Department ID: ";
-		cin.ignore();
-		getline(cin, input);
-		strcpy(departmentPointer->departmentID, input.c_str());
+	cout << "\n\n---CREATE A DEPARTMENT---\n";
+	cout << "Please fill out the following information for the department." << endl;
+	cout << "Department ID: ";
+	cin.ignore();
+	getline(cin, input);
+	strcpy(departmentPointer->departmentID, input.c_str());
 
-		/// make sure departmentID does NOT already exist 
-		// IF it does NOT, insert Department object into the file
-		/*if (currentDept != 0)
-		{
-			for (int previous = 0; previous < currentDept; previous++)
-			{
-				while (departmentInfo[currentDept].departmentID == departmentInfo[previous].departmentID)
-				{
-					cout << "That Department ID already exists! Please enter a different department ID.\n";
-					cout << "Department ID: ";
-					getline(cin, input);
-					strcpy(departmentInfo.departmentID, input.c_str());
-				}
-			}
+	/// make sure departmentID does NOT already exist 
+	// IF it does NOT, insert Department object into the file
+	/*if (currentDept != 0)
+	{
+	for (int previous = 0; previous < currentDept; previous++)
+	{
+	while (departmentInfo[currentDept].departmentID == departmentInfo[previous].departmentID)
+	{
+	cout << "That Department ID already exists! Please enter a different department ID.\n";
+	cout << "Department ID: ";
+	getline(cin, input);
+	strcpy(departmentInfo.departmentID, input.c_str());
+	}
+	}
 
-		}*/
+	}*/
 
-		// if id is good, continue and create object in array
-		cout << "Department Name: ";
-		getline(cin, input);
-		strcpy(departmentPointer->departmentName, input.c_str());
+	// if id is good, continue and create object in array
+	cout << "Department Name: ";
+	getline(cin, input);
+	strcpy(departmentPointer->departmentName, input.c_str());
 
-		cout << "Name of the Head of the Department: ";
-		getline(cin, input);
-		strcpy(departmentPointer->departmentHeadName, input.c_str());
+	cout << "Name of the Head of the Department: ";
+	getline(cin, input);
+	strcpy(departmentPointer->departmentHeadName, input.c_str());
 
-		// TEST OUTPUT
-		cout << departmentInfo.departmentID << endl;
-		cout << departmentInfo.departmentName << endl;
-		cout << departmentInfo.departmentHeadName << endl;
-	
-		departmentFile.write(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
-		departmentFile.close();
+	// TEST OUTPUT
+	cout << departmentInfo.departmentID << endl;
+	cout << departmentInfo.departmentName << endl;
+	cout << departmentInfo.departmentHeadName << endl;
+
+	departmentFile.write(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
+	departmentFile.close();
 }
 
 /* --------------------------------------------2.) CREATE EMPLOYEE FUNCTION-------------------------------------------- */
@@ -426,7 +438,7 @@ void editDepartment(Department departmentInfo, Department* departmentPointer, co
 	char deptID[ID_SIZE];
 	string input;			// user input
 
-	// open file for binary reading 
+							// open file for binary reading 
 	fstream readFile("departments.dat", ios::in | ios::out | ios::binary);
 	// check for valid file
 	if (!readFile)
@@ -438,12 +450,14 @@ void editDepartment(Department departmentInfo, Department* departmentPointer, co
 	departmentRecords(departmentInfo);
 
 	// move to desired department and read it 
-	cout << "Please enter the department ID of the department you want to edit: "; 
+	cout << "Please enter the department ID of the department you want to edit: ";
 	cin >> deptID;
 
 	readFile.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
 	for (long deptIndex = 0; deptIndex < currentDept; deptIndex++)
 	{
+		readFile.seekg(deptByteNum(deptIndex));
+		cout << departmentInfo.departmentID;
 		if (deptID == departmentInfo.departmentID)
 		{
 			deptNum = deptIndex;
@@ -460,13 +474,14 @@ void editDepartment(Department departmentInfo, Department* departmentPointer, co
 	cout << "Old Department Name: ";
 	cout << departmentInfo.departmentName << endl;
 	cout << "New Department Name: ";
+	cin.ignore();
 	getline(cin, input);
 	strcpy(departmentPointer->departmentName, input.c_str());
-	cout << "Old Department Head Name: ";
+	cout << "\nOld Department Head Name: ";
 	cout << departmentInfo.departmentHeadName << endl;
 	cout << "New Department Head Name: ";
 	getline(cin, input);
-	strcpy(departmentPointer->departmentHeadName, input.c_str()); 
+	strcpy(departmentPointer->departmentHeadName, input.c_str());
 
 	// move to the right place in the file and write the recored
 
