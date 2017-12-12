@@ -229,8 +229,11 @@ void displayMenu()
 	cout << "2. Create Employee\n";
 	cout << "3. Edit Department\n";
 	cout << "4. Edit Employee\n";
-	cout << "5. Display Report\n";
-	cout << "6. Quit the Program\n";
+	cout << "5. Display Departments\n";
+	cout << "6. Display Employees\n";
+	cout << "7. Display Salary Report\n";
+	cout << "8. Quit the Program\n";
+	cout << "----\n";
 }
 
 void chooseOption(Department& departmentInfo, Department* departmentPointer, int& currentDept)
@@ -277,21 +280,44 @@ void chooseOption(Department& departmentInfo, Department* departmentPointer, int
 		editDepartment(departmentInfo, departmentPointer, currentDept);
 		break;
 	}
-	//case 4:			// EDIT EMPLOYEE	
-	//{
-	//	
-	//	break;
-	//}
-	case 5:
+	case 4:		// EDIT EMPLOYEE	
+	{
+		
+		break;
+	}
+	case 5:			// DISPLAY DEPARTMENTS
 	{
 		departmentRecords(departmentInfo);
 		break;
 	}
-	case 6:
+	case 6:			// DISPLAY EMPLOYEES
 	{
-		// QUIT PROGRAM
-		cout << "The program will now exit.\n";
-		exit(EXIT_SUCCESS);
+		break;
+	}
+	case 7:			// DISPLAY REPORT
+	{
+		break;
+	}
+	case 8:			// QUIT PROGRAM
+	{
+		char quit;
+		cout << "Are you sure you want to exit? Enter Y for yes or N for no: ";
+		cin >> quit;
+
+		while (quit != 'Y' && quit != 'y' && quit != 'N' && quit != 'n')
+		{
+			cout << "Press Y for yes or N for No: ";
+			cin >> quit;
+		}
+
+		if (quit == 'Y' || quit == 'y')
+		{
+			cout << "The program will now exit.\n";
+			exit(EXIT_SUCCESS);
+		}
+		else
+			break;
+		
 	}
 	// INPUT VALIDATION: only accept valid menu choices 
 	default:
@@ -470,13 +496,13 @@ void createDepartment(Department& departmentInfo, Department* departmentPointer)
 /* --------------------------------------------3.) EDIT DEPARTMENT-------------------------------------------- */
 void editDepartment(Department& departmentInfo, Department* departmentPointer, const int currentDept)
 {
-	long deptNum;			// edit this department
-	char deptID[ID_SIZE];
-	string input;			// user input
-	char ch;
 	departmentPointer = &departmentInfo;
-
-							// open file for binary reading 
+	Department edit = { "N/A", "N/A", "N/A" };
+	long deptNum;			// edit this department
+	string input;			// user input
+	streamoff desiredPos;	// position to write to 
+	
+	// open file for binary reading 
 	fstream readFile("departments.dat", ios::in | ios::out | ios::binary);
 	// check for valid file
 	if (!readFile)
@@ -489,46 +515,34 @@ void editDepartment(Department& departmentInfo, Department* departmentPointer, c
 
 	// move to desired department and read it 
 	cout << "Please enter the department ID of the department you want to edit: ";
-	cin >> deptID;
+	cin.ignore();
+	getline(cin, input); 
+	strcpy(edit.departmentID, input.c_str());
 
-	readFile.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
-	//
-	//while (!readFile.eof())
-	//{
-	//	for (long deptIndex = 0; deptIndex < currentDept; deptIndex++)
-	//	{
-	//		readFile.seekg(deptByteNum(deptIndex), ios::beg);
-	//		cout << departmentInfo.departmentID;			// check department ID to seek which structure is looked at 
-	//		if (deptID == departmentInfo.departmentID)
-	//		{
-	//			deptNum = deptIndex;
-	//			break;
-	//		}
-	//		readFile.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
-	//	}
-	//}
-
+	streamoff posRead = readFile.tellg(); // returns read position
+	cout << posRead << endl;
+	readFile.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));			// read operation reads currently pointed-to structure AND MOVES pointer DOWN ONE STRUCTURE
 	long deptIndex = 0;
 	while (!readFile.eof())
 	{
-		cout << departmentInfo.departmentID;			// check department ID to seek which structure is looked at 
-		if (deptID == departmentInfo.departmentID)
+		cout << departmentInfo.departmentID << endl;			// check department ID to seek which structure is looked at 
+		if (strcmp(edit.departmentID, departmentInfo.departmentID) == 0)		//COMPAR C STRING
 		{
-			deptNum = deptIndex;
+			deptNum = deptIndex;								// determine which structure matches this department ID
+			desiredPos = posRead;								// determine starting position of structure to edit
 			break;
 		}
 		deptIndex++;
+		streamoff posRead = readFile.tellg(); // returns read position
+		cout << posRead << endl;
 		readFile.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
 	}
 
-	// read file
-	readFile.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
-
+	readFile.seekg(0, ios::cur);								// sets position in input sentence
 	// get new data from user and edit in-memory department record
 	cout << "Old Department Name: ";
 	cout << departmentInfo.departmentName << endl;
 	cout << "New Department Name: ";
-	cin.ignore();
 	getline(cin, input);
 	strcpy(departmentPointer->departmentName, input.c_str());
 	cout << "\nOld Department Head Name: ";
@@ -537,32 +551,15 @@ void editDepartment(Department& departmentInfo, Department* departmentPointer, c
 	getline(cin, input);
 	strcpy(departmentPointer->departmentHeadName, input.c_str());
 
+	streamoff posWrite = readFile.tellg();										// sets position where next charater is to be inserted into the output stream
+	readFile.seekp(posWrite - sizeof(departmentInfo));
 
-	////////////////////////////////// WORK ON THIS FEATURE
-	long int posRead = readFile.tellg(); // returns read position
-	cout << posRead;
-	// write the new record
-	readFile.seekp(deptByteNum(departmentInfo, deptNum - 1), ios::beg);
-	readFile.write(reinterpret_cast<char *>(&departmentInfo), sizeof(Department));
-
-	// TEST OUTPUT
-	long int posWrite= readFile.tellp(); // returns write position
-	cout << posWrite;
-	
-
-	int byte = deptByteNum(departmentInfo, deptNum - 1);
-	cout << byte << endl;							// offset
-	// read character at given offset 
-	readFile.seekg(1, ios::beg);
-	readFile.get(ch);
-	cout << ch << endl;
-	cout << departmentInfo.departmentID << endl;
-	cout << departmentInfo.departmentName << endl;
-	cout << departmentInfo.departmentHeadName << endl;
+	readFile.write(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
+	readFile.close();
 
 	departmentRecords(departmentInfo);
 
-	readFile.close();
+	
 }
 
 /* --------------------------------------------5.) DISPLAY DEPARTMENT RECORDS-------------------------------------------- */
