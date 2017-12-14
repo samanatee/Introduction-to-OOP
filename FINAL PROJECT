@@ -62,28 +62,14 @@ struct Department
 
 ///* --------------------------------------------EMPLOYEE STRUCTURE-------------------------------------------- *///
 
-//struct Employee
-//{
-//	// member variables
-//	char employeeID[ID_SIZE];
-//	char employeeName[NAME_SIZE];
-//	double employeeSalary;
-//	int employeeAge;
-//	char employeeDepartmentID[ID_SIZE];
-//
-//	// DEFAULT CONSTRUCTOR
-//	Employee()
-//	{
-//		employeeID = "N/A";
-//		employeeName = "N/A";
-//		employeeSalary = 0.00;
-//		employeeAge = 0;
-//		employeeDepartmentID = "N/A";
-//	}
-//	
-//	// PROTOTYPES
-//	void displayReport(DepartmentArray dptAccess);			// OPTION 5
-//};
+struct Employee
+{
+	char employeeID[ID_SIZE];
+	char employeeName[NAME_SIZE];
+	double employeeSalary;
+	int employeeAge;
+	char employeeDepartmentID[ID_SIZE];
+};
 
 //void Employee::displayReport(DepartmentArray dptAccess)
 //{
@@ -136,7 +122,6 @@ void chooseOption(Department& departmentInfo, Department* departmentPointer, int
 
 // DEPARTMENT PROTOTYPES
 void countDpts(Department departmentInfo, int& currentDept);
-long deptByteNum(Department departmentInfo, int structNum);
 void createDepartment(Department& departmentInfo, Department* departmentPointer, const int currentDept);
 void checkDptID(Department& departmentInfo, Department* departmentPointer, const int currentDept);
 void editDepartment(Department& departmentInfo, Department* departmentPointer, const int currentDept);
@@ -144,23 +129,33 @@ void departmentRecords(Department departmentInfo);
 
 
 // EMPLOYEE PROTOTYPES
-//void createEmployee(int& currentEmpl, DepartmentArray dptAccess);
+void countEmpl(Employee employeeInfo, int& currentEmpl);
+void createEmployee(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl);
+void checkEmplID(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl);
+void employeeRecords(Employee employeeInfo);
+
+
 
 int main()
 {
-	Department departmentInfo = { "N/A", "N/A", "N/A" };
-	Department* departmentPointer;
-	departmentPointer = &departmentInfo;
-	//Employee employeeInfo;
-
-	// FROM MIDTERM 
 	char anotherOption;
-	//char quitProgram;
 	int currentDept = 0;
 	int currentEmployee = 0;
 
+	Department departmentInfo = { "N/A", "N/A", "N/A" };
+	Department* departmentPointer;
+	departmentPointer = &departmentInfo;
 	// determine how many departments are already in the file
 	countDpts(departmentInfo, currentDept);
+	
+	Employee employeeInfo = { "N/A", "N/A", 0, 0, "N/A" };
+	Employee* employeePointer;
+	employeePointer = &employeeInfo;
+	// determine how many employees are already in the file
+	countEmpl(employeeInfo, currentEmployee);
+	
+
+	
 
 
 	cout << "Choose from the menu below using options 1 through 6. \n\n";
@@ -329,6 +324,10 @@ void chooseOption(Department& departmentInfo, Department* departmentPointer, int
 	}
 }
 
+/*///////////////////////////////////////
+DEPARTMENT FUNCTIONS
+//////////////////////////////////////*/
+
 /* --------------------------------------------DETERMINE NUMBER OF DEPARTMENTS IN FILE-------------------------------------------- */
 void countDpts(Department departmentInfo, int& currentDept)
 {
@@ -362,12 +361,6 @@ void countDpts(Department departmentInfo, int& currentDept)
 	readFile.close();
 }
 
-/* --------------------------------------------DETERMINE DEPARTMENT BYTE NUMBER FUNCTION-------------------------------------------- */
-long deptByteNum(Department departmentInfo, int structNum)
-{
-	return (sizeof(Department) - sizeof(departmentInfo)) * structNum;
-}
-
 /* --------------------------------------------1.) CREATE DEPARTMENT-------------------------------------------- */
 void createDepartment(Department& departmentInfo, Department* departmentPointer, const int currentDept)
 {
@@ -396,11 +389,8 @@ void createDepartment(Department& departmentInfo, Department* departmentPointer,
 	{
 		checkDptID(departmentInfo, departmentPointer, currentDept);
 	}
-	
 
-	//createDpt.seekg(0, ios::cur);								// sets position in input sentence
-																// get new data from user and edit in-memory department record
-	// if id is good, continue and create object in array
+	// if id is good, continue and create object
 	cout << "Department Name: ";
 	getline(cin, input);
 	strcpy(departmentPointer->departmentName, input.c_str());
@@ -421,8 +411,6 @@ void createDepartment(Department& departmentInfo, Department* departmentPointer,
 void checkDptID(Department& departmentInfo, Department* departmentPointer, const int currentDept)
 {
 	Department checkID = { "N/A", "N/A", "N/A" };
-	Department dept1 = { "N/A", "N/A", "N/A" };
-	Department dept2 = { "N/A", "N/A", "N/A" };
 	string input;		// used to read strings
 	int deptIndex = 0;	// number of previous departments before the one being created
 	
@@ -471,77 +459,6 @@ void checkDptID(Department& departmentInfo, Department* departmentPointer, const
 	departmentRecords(departmentInfo);
 }
 
-/* --------------------------------------------2.) CREATE EMPLOYEE FUNCTION-------------------------------------------- */
-//void createEmployee(int& currentEmpl, DepartmentArray dptAccess)
-//{
-//	// create Employee file object and open file
-//	fstream employeeFile("employees.txt", ios::out | ios::binary);
-//	if (!employeeFile)
-//	{
-//		cout << "Error opening file. Program will now abort.";
-//		exit(EXIT_FAILURE);
-//	}
-//	// collect all information about an employee
-//	cout << "\n\n---CREATE AN EMPLOYEE---\n";
-//	cout << "Please fill out the following information for the employee." << endl;
-//	cout << "Employee ID: ";
-//	cin.ignore();
-//	getline(cin, employeeInfo[currentEmpl].employeeID);
-//
-//	/// make sure employeeID does NOT already exist in the array containing Department objects
-//	// IF it does NOT, insert Employee object into the array
-//	if (currentEmpl != 0)
-//	{
-//		for (int previous = 0; previous < currentEmpl; previous++)
-//		{
-//			while (employeeInfo[currentEmpl].employeeID == employeeInfo[previous].employeeID)
-//			{
-//				cout << "That Employee ID already exists! Please enter a different Employee ID.\n";
-//				cout << "Employee ID: ";
-//				getline(cin, employeeInfo[currentEmpl].employeeID);
-//			}
-//		}
-//	}
-//	// if id is good, continue and create object in array
-//	cout << "Employee Name: ";
-//	getline(cin, employeeInfo[currentEmpl].employeeName);
-//
-//	cout << "Employee Salary: $";
-//	cin >> employeeInfo[currentEmpl].employeeSalary;
-//
-//	cout << "Employee Age: ";
-//	cin >> employeeInfo[currentEmpl].employeeAge;
-//
-//	cout << "Employee Department ID: ";
-//	cin.ignore();
-//	getline(cin, employeeInfo[currentEmpl].employeeDepartmentID);
-//
-//	bool match = false;
-//
-//	while (match == false)
-//	{
-//		for (int previous = 0; previous < MAX_DEPT && match == false; previous++)
-//		{
-//			if (employeeInfo[currentEmpl].employeeDepartmentID == dptAccess.departmentInfo[previous].departmentID)
-//			{
-//				match = true;
-//				break;
-//			}
-//			else
-//			{
-//				match = false;
-//			}
-//		}
-//
-//		if (match == false)
-//		{
-//			cout << "That Department ID does not exist! Please enter a valid Employee Department ID.\n";
-//			cout << "Employee Department ID: ";
-//			getline(cin, employeeInfo[currentEmpl].employeeDepartmentID);
-//		}
-//	}
-//}
-
 /* --------------------------------------------3.) EDIT DEPARTMENT-------------------------------------------- */
 void editDepartment(Department& departmentInfo, Department* departmentPointer, const int currentDept)
 {
@@ -550,8 +467,8 @@ void editDepartment(Department& departmentInfo, Department* departmentPointer, c
 	long deptNum;			// edit this department
 	string input;			// user input
 	streamoff desiredPos;	// position to write to 
-	
-	// open file for binary reading 
+
+							// open file for binary reading 
 	fstream editDpt("departments.dat", ios::in | ios::out | ios::binary);
 	// check for valid file
 	if (!editDpt)
@@ -565,7 +482,7 @@ void editDepartment(Department& departmentInfo, Department* departmentPointer, c
 	// move to desired department and read it 
 	cout << "Please enter the department ID of the department you want to edit: ";
 	cin.ignore();
-	getline(cin, input); 
+	getline(cin, input);
 	strcpy(edit.departmentID, input.c_str());
 
 	streamoff posRead = editDpt.tellg(); // returns read position
@@ -588,7 +505,7 @@ void editDepartment(Department& departmentInfo, Department* departmentPointer, c
 	}
 
 	editDpt.seekg(0, ios::cur);								// sets position in input sentence
-	// get new data from user and edit in-memory department record
+															// get new data from user and edit in-memory department record
 	cout << "Old Department Name: ";
 	cout << departmentInfo.departmentName << endl;
 	cout << "New Department Name: ";
@@ -608,11 +525,10 @@ void editDepartment(Department& departmentInfo, Department* departmentPointer, c
 
 	departmentRecords(departmentInfo);
 
-	
+
 }
 
 /* --------------------------------------------5.) DISPLAY DEPARTMENT RECORDS-------------------------------------------- */
-
 void departmentRecords(Department departmentInfo)			// ALL DEPARTMENT RECORDS
 {
 	// open file for binary reading 
@@ -639,4 +555,192 @@ void departmentRecords(Department departmentInfo)			// ALL DEPARTMENT RECORDS
 	dptRecords.close();
 }
 
+
+/*///////////////////////////////////////
+EMPLOYEE FUNCTIONS
+//////////////////////////////////////*/
+
+/* --------------------------------------------DETERMINE NUMBER OF EMPLOYEES IN FILE-------------------------------------------- */
+void countEmpl(Employee employeeInfo, int& currentEmpl)
+{
+	int numOfEmpl = 0;
+
+	// open file for binary reading 
+	fstream readFile("employees.dat", ios::in | ios::binary);
+	// check for existing file
+	if (!readFile)
+	{
+		currentEmpl = 0;
+	}
+
+	else
+	{
+		// DEPARTMENT RECORDS
+		readFile.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
+		while (!readFile.eof())
+		{
+			cout << "Employee ID: " << employeeInfo.employeeID;
+			cout << "Employee Name: " << employeeInfo.employeeName;
+			cout << "Employee Salary: " << employeeInfo.employeeSalary;
+			cout << "Employee Age: " << employeeInfo.employeeAge;
+			cout << "Employee's Department ID: " << employeeInfo.employeeDepartmentID;
+			cout << endl;
+			readFile.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
+			numOfEmpl++;
+		}
+		cout << numOfEmpl;
+		currentEmpl = numOfEmpl;
+	}
+
+	readFile.close();
+}
+
+
+/* --------------------------------------------2.) CREATE EMPLOYEE FUNCTION-------------------------------------------- */
+void createEmployee(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl)
+{
+	string inputString;		// used to read strings
+	double inputDouble;		// used to read doubles
+	int inputInt;		// used to read doubles
+	char* pChar;
+
+	// create Employee file object and open file
+	fstream createEmpl("employees.dat", ios::out | ios::app | ios::binary);			// if file does not exist, empty file of given name is created
+	if (!createEmpl)
+	{
+		cout << "Error opening file. Program will now abort.";
+		exit(EXIT_FAILURE);
+	}
+
+	// collect all information about a department
+
+	cout << "\n\n---CREATE AN EMPLOYEE---\n";
+	cout << "Please fill out the following information for the employee." << endl;
+	cout << "Employee ID: ";
+	cin.ignore();
+	getline(cin, inputString);
+	strcpy(employeePointer->employeeID, inputString.c_str());
+
+	/// make sure employeeID does NOT already exist 
+	// IF it does NOT, insert Employee object into the file
+	if (currentEmpl != 0)
+	{
+		checkEmplID(employeeInfo, employeePointer, currentEmpl);
+	}
+
+	// if id is good, continue and create object 
+	cout << "Employee Name: ";
+	getline(cin, inputString);
+	strcpy(employeePointer->employeeName, inputString.c_str());
+
+	cout << "Employee Salary: $";
+	cin >> inputDouble;
+	employeePointer->employeeSalary = inputDouble;
+
+	cout << "Employee Age: ";
+	cin >> inputInt;
+	employeePointer->employeeAge = inputInt;
+
+	cout << "Employee Department ID: ";
+	cin.ignore();
+	getline(cin, inputString);
+	strcpy(employeePointer->employeeDepartmentID, inputString.c_str());
+
+	// CHECK EMPLOYEE'S DEPARTMENT ID
+	if (currentEmpl != 0)
+	{
+		checkEmplDptID(employeeInfo, employeePointer, currentEmpl);
+	}
+
+	// TEST OUTPUT
+	cout << "Employee ID: " << employeeInfo.employeeID;
+	cout << "Employee Name: " << employeeInfo.employeeName;
+	cout << "Employee Salary: " << employeeInfo.employeeSalary;
+	cout << "Employee Age: " << employeeInfo.employeeAge;
+	cout << "Employee's Department ID: " << employeeInfo.employeeDepartmentID;
+
+	createEmpl.write(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
+	createEmpl.close();
+
+}
+
+
+void checkEmplID(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl)
+{
+	Employee checkID = { "N/A", "N/A", 0, 0, "N/A" };
+	string input;		// used to read strings
+	int emplIndex = 0;	// number of previous departments before the one being created
+	
+	// open file for binary reading 
+	fstream emplRecords("employees.dat", ios::in | ios::out | ios::binary);
+	// check for valid file
+	if (!emplRecords)
+	{
+		cout << "Error opening file. The program will now abort.\n";
+		exit(EXIT_FAILURE);
+	}
+
+	strcpy(checkID.employeeID, employeeInfo.employeeID);
+
+	emplRecords.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));			// read operation reads currently pointed-to structure AND MOVES pointer DOWN ONE STRUCTURE
+	streamoff posRead = emplRecords.tellg(); // returns read position
+	cout << posRead << endl;
+	while (!emplRecords.eof() && emplIndex < currentEmpl)
+	{
+		cout << employeeInfo.employeeID << endl;			// check department ID to seek which structure is looked at 
+		while (strcmp(checkID.employeeID, employeeInfo.employeeID) == 0)		//COMPARE C STRING
+		{
+			cout << "That Employee ID already exists! Please enter a different department ID.\n";
+			cout << "Department ID: ";
+			getline(cin, input);
+			strcpy(checkID.employeeID, input.c_str());
+			for (int index = 0; index < currentEmpl; index++)
+			{
+				emplRecords.seekg(sizeof(employeeInfo) * index);
+				emplRecords.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
+				if (strcmp(checkID.employeeID, employeeInfo.employeeID) == 0)
+				{
+					break;
+				}
+			}
+		}
+		emplRecords.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
+		emplIndex++;
+	}
+
+	cout << posRead << endl;
+	strcpy(employeeInfo.employeeID, checkID.employeeID);
+
+
+	employeeRecords(employeeInfo);
+}
+
+
 /* --------------------------------------------6.) DISPLAY EMPLOYEE RECORDS-------------------------------------------- */
+void employeeRecords(Employee employeeInfo)			// ALL EMPLOYEE RECORDS
+{
+	// open file for binary reading 
+	fstream emplRecords("employees.dat", ios::in | ios::binary);
+	// check for valid file
+	if (!emplRecords)
+	{
+		cout << "Error opening file. The program will now abort.\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// DEPARTMENT RECORDS
+	cout << "\nEMPLOYEE RECORDS\n";
+	cout << "------------------\n";
+	emplRecords.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
+	while (!emplRecords.eof())
+	{
+		cout << "Employee ID: " << employeeInfo.employeeID;
+		cout << "Employee Name: " << employeeInfo.employeeName;
+		cout << "Employee Salary: " << employeeInfo.employeeSalary;
+		cout << "Employee Age: " << employeeInfo.employeeAge;
+		cout << "Employee's Department ID: " << employeeInfo.employeeDepartmentID;
+		cout << endl;
+		emplRecords.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
+	}
+	emplRecords.close();
+}
