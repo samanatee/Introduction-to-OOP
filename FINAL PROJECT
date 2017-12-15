@@ -131,6 +131,7 @@ void countEmpl(Employee employeeInfo, int& currentEmpl);
 void createEmployee(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl, Department& departmentInfo, Department* departmentPointer, const int currentDept);
 void checkEmplID(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl);
 void checkEmplDptID(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl, Department& departmentInfo, Department* departmentPointer, const int currentDept);
+void editEmployee(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl);
 void employeeRecords(Employee employeeInfo, const int currentEmpl);			// ALL EMPLOYEE RECORDS
 
 int main()
@@ -270,7 +271,7 @@ void chooseOption(Department& departmentInfo, Department* departmentPointer, int
 	}
 	case 4:		// EDIT EMPLOYEE	
 	{
-
+		editEmployee(employeeInfo, employeePointer, currentEmpl);
 		break;
 	}
 	case 5:			// DISPLAY DEPARTMENTS
@@ -457,6 +458,16 @@ void checkDptID(Department& departmentInfo, Department* departmentPointer, const
 /* --------------------------------------------3.) EDIT DEPARTMENT-------------------------------------------- */
 void editDepartment(Department& departmentInfo, Department* departmentPointer, const int currentDept)
 {
+	if (currentDept == 0)
+	{
+		cout << "There are currently no records on file. Please select option 1 to \"Create a Department\".\n\n";
+	}
+
+	else if (currentDept > 0)
+	{
+		checkDptID(departmentInfo, departmentPointer, currentDept);
+	}
+
 	departmentPointer = &departmentInfo;
 	Department edit = { "N/A", "N/A", "N/A" };
 	long deptNum;			// edit this department
@@ -773,6 +784,92 @@ void checkEmplDptID(Employee& employeeInfo, Employee* employeePointer, const int
 
 	cout << posRead << endl;
 	strcpy(employeeInfo.employeeDepartmentID, checkID.employeeDepartmentID);
+}
+
+/* --------------------------------------------4.) EDIT EMPLOYEE-------------------------------------------- */
+void editEmployee(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl)
+{
+	if (currentEmpl == 0)
+	{
+		cout << "There are currently no records on file. Please select option 2 to \"Create an Employee\".\n\n";
+	}
+
+	else if (currentEmpl > 0)
+	{
+		checkEmplID(employeeInfo, employeePointer, currentEmpl);
+	}
+
+	employeePointer = &employeeInfo;
+	Employee edit = { "N/A", "N/A", 0, 0, "N/A" };
+	long emplNum;			// edit this department
+	string input;			// user input
+	streamoff desiredPos;	// position to write to 
+
+							// open file for binary reading 
+	fstream editEmpl("employees.dat", ios::in | ios::out | ios::binary);
+	// check for valid file
+	if (!editEmpl)
+	{
+		cout << "Error opening file. The program will now abort.\n";
+		exit(EXIT_FAILURE);
+	}
+
+	employeeRecords(employeeInfo, currentEmpl);
+
+	// move to desired department and read it 
+	cout << "Please enter the employee ID of the employee you want to edit: ";
+	cin.ignore();
+	getline(cin, input);
+	strcpy(edit.employeeID, input.c_str());
+
+	streamoff posRead = editEmpl.tellg(); // returns read position
+	cout << posRead << endl;
+	editEmpl.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));			// read operation reads currently pointed-to structure AND MOVES pointer DOWN ONE STRUCTURE
+	long emplIndex = 0;
+	while (!editEmpl.eof())
+	{
+		cout << employeeInfo.employeeID << endl;			// check department ID to seek which structure is looked at 
+		if (strcmp(edit.employeeID, employeeInfo.employeeID) == 0)		//COMPARE C STRING
+		{
+			emplNum = emplIndex;								// determine which structure matches this department ID
+			desiredPos = posRead;								// determine starting position of structure to edit
+			break;
+		}
+		emplIndex++;
+		streamoff posRead = editEmpl.tellg(); // returns read position
+		cout << posRead << endl;
+		editEmpl.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
+	}
+
+	editEmpl.seekg(0, ios::cur);								// sets position in input sentence
+															// get new data from user and edit in-memory department record
+	cout << "Old Employee Name: ";
+	cout << employeeInfo.employeeName << endl;
+	cout << "New Employee Name: ";
+	getline(cin, input);
+	strcpy(employeePointer->employeeName, input.c_str());
+
+	cout << "\nOld Employee Salary: $ ";
+	cout << employeeInfo.employeeSalary;
+	cout << "\nNew Employee Salary: $ ";
+	double inputDouble;
+	cin >> inputDouble;
+	employeePointer->employeeSalary = inputDouble;
+
+	cout << "\nOld Employee Age: ";
+	cout << employeeInfo.employeeAge;
+	cout << "\nNew Employee Age: ";
+	int inputInt;
+	cin >> inputInt;
+	employeePointer->employeeAge = inputInt;
+
+	streamoff posWrite = editEmpl.tellg();										// sets position where next charater is to be inserted into the output stream
+	editEmpl.seekp(posWrite - sizeof(employeeInfo));
+
+	editEmpl.write(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
+	editEmpl.close();
+
+	employeeRecords(employeeInfo, currentEmpl);
 }
 
 /* --------------------------------------------6.) DISPLAY EMPLOYEE RECORDS-------------------------------------------- */
