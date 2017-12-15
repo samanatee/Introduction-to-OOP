@@ -653,11 +653,8 @@ void createEmployee(Employee& employeeInfo, Employee* employeePointer, const int
 	strcpy(employeePointer->employeeDepartmentID, inputString.c_str());
 
 	// CHECK EMPLOYEE'S DEPARTMENT ID
-	/*if (currentEmpl != 0)
-	{
-		checkEmplDptID(employeeInfo, employeePointer, currentEmpl, departmentInfo, departmentPointer, currentDept);
-	}*/
-
+	checkEmplDptID(employeeInfo, employeePointer, currentEmpl, departmentInfo, departmentPointer, currentDept);
+	
 	// TEST OUTPUT
 	cout << "Employee ID: " << employeeInfo.employeeID << endl;
 	cout << "Employee Name: " << employeeInfo.employeeName << endl;
@@ -701,7 +698,7 @@ void checkEmplID(Employee& employeeInfo, Employee* employeePointer, const int cu
 		while (strcmp(checkID.employeeID, employeeInfo.employeeID) == 0)		//COMPARE C STRING
 		{
 			cout << "That Employee ID already exists! Please enter a different department ID.\n";
-			cout << "Department ID: ";
+			cout << "Employee ID: ";
 			getline(cin, input);
 			strcpy(checkID.employeeID, input.c_str());
 			for (int index = 0; index < currentEmpl; index++)
@@ -723,6 +720,59 @@ void checkEmplID(Employee& employeeInfo, Employee* employeePointer, const int cu
 
 
 	employeeRecords(employeeInfo, currentEmpl);
+}
+
+/* --------------------------------------------CHECK EMPLOYEE DEPARTMENT IDS-------------------------------------------- */
+void checkEmplDptID(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl, Department& departmentInfo, Department* departmentPointer, const int currentDept)
+{
+	Employee checkID = { "N/A", "N/A", 0, 0, "N/A" };
+	string input;		// used to read strings
+		
+	// open Employees file for binary reading 
+	fstream emplRecords("employees.dat", ios::in | ios::out | ios::binary);
+	// check for valid file
+	if (!emplRecords)
+	{
+		cout << "Error opening file. The program will now abort.\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// open Departments file for binary reading 
+	fstream dptRecords("departments.dat", ios::in | ios::out | ios::binary);
+	// check for valid file
+	if (!dptRecords)
+	{
+		cout << "Error opening file. The program will now abort.\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// WHAT TO CHECK 
+	strcpy(checkID.employeeDepartmentID, employeeInfo.employeeDepartmentID);
+
+	dptRecords.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));			// read operation reads currently pointed-to structure AND MOVES pointer DOWN ONE STRUCTURE
+	streamoff posRead = dptRecords.tellg(); // returns read position
+	cout << posRead << endl;
+	
+	while (strcmp(checkID.employeeDepartmentID, departmentInfo.departmentID) != 0)		//COMPARE C STRING
+	{
+		cout << "That Department ID does not exist! Please enter a valid department ID.\n";
+		cout << "Department ID: ";
+		getline(cin, input);
+		strcpy(checkID.employeeDepartmentID, input.c_str());
+		for (int index = 0; index < currentDept; index++)
+		{
+			dptRecords.seekg(sizeof(departmentInfo) * index);
+			dptRecords.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
+			if (strcmp(checkID.employeeDepartmentID, departmentInfo.departmentID) == 0)
+			{
+				break;
+			}
+		}
+	}
+	
+
+	cout << posRead << endl;
+	strcpy(employeeInfo.employeeDepartmentID, checkID.employeeDepartmentID);
 }
 
 /* --------------------------------------------6.) DISPLAY EMPLOYEE RECORDS-------------------------------------------- */
