@@ -70,49 +70,6 @@ struct Employee
 	char employeeDepartmentID[ID_SIZE];
 };
 
-//void Employee::displayReport(DepartmentArray dptAccess)
-//{
-//	cout << fixed << showpoint << setprecision(2);
-//
-//	cout << "\n\n\n                    Salary Report: Total Salary Paid for Each Department\n";
-//	cout << "---------------------------------------------------------------------------------------------\n";
-//	cout << left << setw(25) << "Department Name:" << left << setw(25) << "Department ID:" << left << setw(25) << "Department Head:" << "Total Salary Paid:" << endl;
-//
-//	// DEPARTMENT 1
-//	double totalDpt1 = 0;
-//	for (int index = 0; index < MAX_EMPLOYEE; index++)
-//	{
-//		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[0].departmentID)
-//		{
-//			totalDpt1 += employeeInfo[index].employeeSalary;
-//		}
-//	}
-//	cout << left << setw(25) << dptAccess.departmentInfo[0].departmentName << left << setw(25) << dptAccess.departmentInfo[0].departmentID << left << setw(25) << dptAccess.departmentInfo[0].departmentHeadName << "$ " << totalDpt1 << endl;
-//
-//	// DEPARTMENT 2
-//	double totalDpt2 = 0;
-//	for (int index = 0; index < MAX_EMPLOYEE; index++)
-//	{
-//		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[1].departmentID)
-//		{
-//			totalDpt2 += employeeInfo[index].employeeSalary;
-//		}
-//	}
-//	cout << left << setw(25) << dptAccess.departmentInfo[1].departmentName << left << setw(25) << dptAccess.departmentInfo[1].departmentID << left << setw(25) << dptAccess.departmentInfo[1].departmentHeadName << "$ " << totalDpt2 << endl;
-//
-//	// DEPARTMENT 3
-//	double totalDpt3 = 0;
-//	for (int index = 0; index < MAX_EMPLOYEE; index++)
-//	{
-//		if (employeeInfo[index].employeeDepartmentID == dptAccess.departmentInfo[2].departmentID)
-//		{
-//			totalDpt3 += employeeInfo[index].employeeSalary;
-//		}
-//	}
-//	cout << left << setw(25) << dptAccess.departmentInfo[2].departmentName << left << setw(25) << dptAccess.departmentInfo[2].departmentID << left << setw(25) << dptAccess.departmentInfo[2].departmentHeadName << "$ " << totalDpt3 << endl;
-
-//}
-
 /* --------------------------------------------CLIENT PROGRAM-------------------------------------------- */
 
 // GENERAL PROTOTYPES 
@@ -131,8 +88,11 @@ void countEmpl(Employee employeeInfo, int& currentEmpl);
 void createEmployee(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl, Department& departmentInfo, Department* departmentPointer, const int currentDept);
 void checkEmplID(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl);
 void checkEmplDptID(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl, Department& departmentInfo, Department* departmentPointer, const int currentDept);
-void editEmployee(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl);
+void editEmployee(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl, const int currentDept);
 void employeeRecords(Employee employeeInfo, const int currentEmpl);			// ALL EMPLOYEE RECORDS
+
+// SALARY REPORT
+void salaryReport(Department departmentInfo, Employee employeeInfo, const int currentDept, const int currentEmpl);
 
 int main()
 {
@@ -168,44 +128,8 @@ int main()
 			cin >> anotherOption;
 		}
 		cout << endl;
-
-		/*if (anotherOption == 'N' || anotherOption == 'n')
-		{
-		if (saved == false)
-		{
-		cout << "You are about to exit the program. The data has not been saved and will be lost.\n";
-		cout << "You can save your data by selecting option 3.\n";
-		cout << "Do you wish to continue to exit the program? Enter Y for yes or N for no: ";
-		cin >> quitProgram;
-		while (quitProgram != 'Y' && quitProgram != 'y' && quitProgram != 'N' && quitProgram != 'n')
-		{
-		cout << "Press Y for yes or N for No: ";
-		cin >> quitProgram;
-		}
-		if (quitProgram == 'Y' || quitProgram == 'y')
-		{
-		break;
-		}
-		else if (quitProgram == 'N' || quitProgram == 'n')
-		{
-		cout << "\nChoose from the menu below using options 1 through 6. \n\n";
-		anotherOption = 'Y';
-		}
-		}
-		}*/
-
 	} while (anotherOption != 'N' && anotherOption != 'n');
 
-	// write data to the file, when the user selects this option, dump the info in each array into a separate file
-	// RETRIEVE data from file
-	// when user selects this OPTION
-	// open each file, load the data from the file into the appropriate array
-	// DISPLAY REPORT:
-	// when user selects this OPTION
-	// go through arrays and display TOTAL SALARY paid for each department
-	// IF user tries to exit program without saving file
-	// ALERT user that data has not been saved and will be lost
-	// Proceed only if user consents
 	system("pause");
 	return 0;
 }
@@ -271,7 +195,7 @@ void chooseOption(Department& departmentInfo, Department* departmentPointer, int
 	}
 	case 4:		// EDIT EMPLOYEE	
 	{
-		editEmployee(employeeInfo, employeePointer, currentEmpl);
+		editEmployee(employeeInfo, employeePointer, currentEmpl, currentDept);
 		break;
 	}
 	case 5:			// DISPLAY DEPARTMENTS
@@ -286,6 +210,7 @@ void chooseOption(Department& departmentInfo, Department* departmentPointer, int
 	}
 	case 7:			// DISPLAY REPORT
 	{
+		salaryReport(departmentInfo, employeeInfo, currentDept, currentEmpl);
 		break;
 	}
 	case 8:			// QUIT PROGRAM
@@ -341,14 +266,10 @@ void countDpts(Department departmentInfo, int& currentDept)
 		readFile.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
 		while (!readFile.eof())
 		{
-			cout << "Department ID: " << departmentInfo.departmentID << endl;
-			cout << "Department Name: " << departmentInfo.departmentName << endl;
-			cout << "Department Head Name: " << departmentInfo.departmentHeadName << endl;
-			cout << endl;
+
 			readFile.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
 			numOfDept++;
 		}
-		cout << numOfDept;
 		currentDept = numOfDept;
 	}
 
@@ -394,11 +315,6 @@ void createDepartment(Department& departmentInfo, Department* departmentPointer,
 	getline(cin, input);
 	strcpy(departmentPointer->departmentHeadName, input.c_str());
 
-	// TEST OUTPUT
-	cout << departmentInfo.departmentID << endl;
-	cout << departmentInfo.departmentName << endl;
-	cout << departmentInfo.departmentHeadName << endl;
-
 	createDpt.write(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
 	createDpt.close();
 }
@@ -406,8 +322,6 @@ void createDepartment(Department& departmentInfo, Department* departmentPointer,
 void checkDptID(Department& departmentInfo, Department* departmentPointer, const int currentDept)
 {
 	Department checkID = { "N/A", "N/A", "N/A" };
-	Department dept1 = { "N/A", "N/A", "N/A" };
-	Department dept2 = { "N/A", "N/A", "N/A" };
 	string input;		// used to read strings
 	int deptIndex = 0;	// number of previous departments before the one being created
 
@@ -424,8 +338,6 @@ void checkDptID(Department& departmentInfo, Department* departmentPointer, const
 	strcpy(checkID.departmentID, departmentInfo.departmentID);
 
 	dptRecords.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));			// read operation reads currently pointed-to structure AND MOVES pointer DOWN ONE STRUCTURE
-	streamoff posRead = dptRecords.tellg(); // returns read position
-	cout << posRead << endl;
 	while (!dptRecords.eof() && deptIndex < currentDept)
 	{
 		cout << departmentInfo.departmentID << endl;			// check department ID to seek which structure is looked at 
@@ -449,10 +361,8 @@ void checkDptID(Department& departmentInfo, Department* departmentPointer, const
 		deptIndex++;
 	}
 
-	cout << posRead << endl;
 	strcpy(departmentInfo.departmentID, checkID.departmentID);
 
-	departmentRecords(departmentInfo, currentDept);
 }
 
 /* --------------------------------------------3.) EDIT DEPARTMENT-------------------------------------------- */
@@ -465,71 +375,65 @@ void editDepartment(Department& departmentInfo, Department* departmentPointer, c
 
 	else if (currentDept > 0)
 	{
-		checkDptID(departmentInfo, departmentPointer, currentDept);
-	}
-
-	departmentPointer = &departmentInfo;
-	Department edit = { "N/A", "N/A", "N/A" };
-	long deptNum;			// edit this department
-	string input;			// user input
-	streamoff desiredPos;	// position to write to 
-
-							// open file for binary reading 
-	fstream editDpt("departments.dat", ios::in | ios::out | ios::binary);
-	// check for valid file
-	if (!editDpt)
-	{
-		cout << "Error opening file. The program will now abort.\n";
-		exit(EXIT_FAILURE);
-	}
-
-	departmentRecords(departmentInfo, currentDept);
-
-	// move to desired department and read it 
-	cout << "Please enter the department ID of the department you want to edit: ";
-	cin.ignore();
-	getline(cin, input);
-	strcpy(edit.departmentID, input.c_str());
-
-	streamoff posRead = editDpt.tellg(); // returns read position
-	cout << posRead << endl;
-	editDpt.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));			// read operation reads currently pointed-to structure AND MOVES pointer DOWN ONE STRUCTURE
-	long deptIndex = 0;
-	while (!editDpt.eof())
-	{
-		cout << departmentInfo.departmentID << endl;			// check department ID to seek which structure is looked at 
-		if (strcmp(edit.departmentID, departmentInfo.departmentID) == 0)		//COMPARE C STRING
+		departmentPointer = &departmentInfo;
+		Department edit = { "N/A", "N/A", "N/A" };
+		string input;			// user input
+		
+								// open file for binary reading 
+		fstream editDpt("departments.dat", ios::in | ios::out | ios::binary);
+		// check for valid file
+		if (!editDpt)
 		{
-			deptNum = deptIndex;								// determine which structure matches this department ID
-			desiredPos = posRead;								// determine starting position of structure to edit
-			break;
+			cout << "Error opening file. The program will now abort.\n";
+			exit(EXIT_FAILURE);
 		}
-		deptIndex++;
-		streamoff posRead = editDpt.tellg(); // returns read position
-		cout << posRead << endl;
-		editDpt.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
+
+		departmentRecords(departmentInfo, currentDept);
+
+		// move to desired department and read it 
+		cout << "Please enter the department ID of the department you want to edit: ";
+		cin.ignore();
+		getline(cin, input);
+		strcpy(edit.departmentID, input.c_str());
+
+		while (strcmp(edit.departmentID, departmentInfo.departmentID) != 0)
+		{
+			for (int index = 0; index < currentDept; index++)
+			{
+				editDpt.seekg(sizeof(departmentInfo) * index);
+				editDpt.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
+				if (strcmp(edit.departmentID, departmentInfo.departmentID) == 0)		//COMPARE C STRING
+				{
+					break;
+				}
+			}
+			if (strcmp(edit.departmentID, departmentInfo.departmentID) != 0)
+			{
+				cout << "That Department ID does not exist! Please enter a valid Department ID.\n";
+				cout << "Department ID: ";
+				getline(cin, input);
+				strcpy(edit.departmentID, input.c_str());
+			}
+		}
+
+		// get new data from user and edit in-memory department record
+		cout << "Old Department Name: ";
+		cout << departmentInfo.departmentName << endl;
+		cout << "New Department Name: ";
+		getline(cin, input);
+		strcpy(departmentPointer->departmentName, input.c_str());
+		cout << "\nOld Department Head Name: ";
+		cout << departmentInfo.departmentHeadName << endl;
+		cout << "New Department Head Name: ";
+		getline(cin, input);
+		strcpy(departmentPointer->departmentHeadName, input.c_str());
+
+		streamoff posWrite = editDpt.tellg();										// sets position where next charater is to be inserted into the output stream
+		editDpt.seekp(posWrite - sizeof(departmentInfo));
+
+		editDpt.write(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
+		editDpt.close();
 	}
-
-	editDpt.seekg(0, ios::cur);								// sets position in input sentence
-															// get new data from user and edit in-memory department record
-	cout << "Old Department Name: ";
-	cout << departmentInfo.departmentName << endl;
-	cout << "New Department Name: ";
-	getline(cin, input);
-	strcpy(departmentPointer->departmentName, input.c_str());
-	cout << "\nOld Department Head Name: ";
-	cout << departmentInfo.departmentHeadName << endl;
-	cout << "New Department Head Name: ";
-	getline(cin, input);
-	strcpy(departmentPointer->departmentHeadName, input.c_str());
-
-	streamoff posWrite = editDpt.tellg();										// sets position where next charater is to be inserted into the output stream
-	editDpt.seekp(posWrite - sizeof(departmentInfo));
-
-	editDpt.write(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
-	editDpt.close();
-
-	departmentRecords(departmentInfo, currentDept);
 }
 
 /* --------------------------------------------5.) DISPLAY DEPARTMENT RECORDS-------------------------------------------- */
@@ -591,20 +495,11 @@ void countEmpl(Employee employeeInfo, int& currentEmpl)
 	{
 		// DEPARTMENT RECORDS
 		readFile.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
-		
-		// DELETE THIS
 		while (!readFile.eof())
 		{
-			cout << "Employee ID: " << employeeInfo.employeeID << endl;
-			cout << "Employee Name: " << employeeInfo.employeeName << endl;
-			cout << "Employee Salary: " << employeeInfo.employeeSalary << endl;
-			cout << "Employee Age: " << employeeInfo.employeeAge << endl;
-			cout << "Employee's Department ID: " << employeeInfo.employeeDepartmentID << endl;
-			cout << endl;
 			readFile.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
 			numOfEmpl++;
 		}
-		cout << numOfEmpl << endl;
 		currentEmpl = numOfEmpl;
 	}
 
@@ -625,10 +520,6 @@ void createEmployee(Employee& employeeInfo, Employee* employeePointer, const int
 		cout << "Error opening file. Program will now abort.";
 		exit(EXIT_FAILURE);
 	}
-
-	// DELETE 
-	streamoff posRead = createEmpl.tellg(); // returns read position
-	cout << posRead;
 
 	// collect all information about a department
 	cout << "\n\n---CREATE AN EMPLOYEE---\n";
@@ -666,13 +557,6 @@ void createEmployee(Employee& employeeInfo, Employee* employeePointer, const int
 	// CHECK EMPLOYEE'S DEPARTMENT ID
 	checkEmplDptID(employeeInfo, employeePointer, currentEmpl, departmentInfo, departmentPointer, currentDept);
 	
-	// TEST OUTPUT
-	cout << "Employee ID: " << employeeInfo.employeeID << endl;
-	cout << "Employee Name: " << employeeInfo.employeeName << endl;
-	cout << "Employee Salary: " << employeeInfo.employeeSalary << endl;
-	cout << "Employee Age: " << employeeInfo.employeeAge << endl;
-	cout << "Employee's Department ID: " << employeeInfo.employeeDepartmentID << endl;
-
 	streamoff posWrite = createEmpl.tellg(); // returns read position
 	cout << posWrite;
 
@@ -701,14 +585,12 @@ void checkEmplID(Employee& employeeInfo, Employee* employeePointer, const int cu
 	strcpy(checkID.employeeID, employeeInfo.employeeID);
 
 	emplRecords.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));			// read operation reads currently pointed-to structure AND MOVES pointer DOWN ONE STRUCTURE
-	streamoff posRead = emplRecords.tellg(); // returns read position
-	cout << posRead << endl;
 	while (!emplRecords.eof() && emplIndex < currentEmpl)
 	{
 		cout << employeeInfo.employeeID << endl;			// check department ID to seek which structure is looked at 
 		while (strcmp(checkID.employeeID, employeeInfo.employeeID) == 0)		//COMPARE C STRING
 		{
-			cout << "That Employee ID already exists! Please enter a different department ID.\n";
+			cout << "That Employee ID already exists! Please enter a different Employee ID.\n";
 			cout << "Employee ID: ";
 			getline(cin, input);
 			strcpy(checkID.employeeID, input.c_str());
@@ -726,11 +608,7 @@ void checkEmplID(Employee& employeeInfo, Employee* employeePointer, const int cu
 		emplIndex++;
 	}
 
-	cout << posRead << endl;
 	strcpy(employeeInfo.employeeID, checkID.employeeID);
-
-
-	employeeRecords(employeeInfo, currentEmpl);
 }
 
 /* --------------------------------------------CHECK EMPLOYEE DEPARTMENT IDS-------------------------------------------- */
@@ -759,17 +637,9 @@ void checkEmplDptID(Employee& employeeInfo, Employee* employeePointer, const int
 
 	// WHAT TO CHECK 
 	strcpy(checkID.employeeDepartmentID, employeeInfo.employeeDepartmentID);
-
-	dptRecords.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));			// read operation reads currently pointed-to structure AND MOVES pointer DOWN ONE STRUCTURE
-	streamoff posRead = dptRecords.tellg(); // returns read position
-	cout << posRead << endl;
 	
 	while (strcmp(checkID.employeeDepartmentID, departmentInfo.departmentID) != 0)		//COMPARE C STRING
 	{
-		cout << "That Department ID does not exist! Please enter a valid department ID.\n";
-		cout << "Department ID: ";
-		getline(cin, input);
-		strcpy(checkID.employeeDepartmentID, input.c_str());
 		for (int index = 0; index < currentDept; index++)
 		{
 			dptRecords.seekg(sizeof(departmentInfo) * index);
@@ -779,97 +649,100 @@ void checkEmplDptID(Employee& employeeInfo, Employee* employeePointer, const int
 				break;
 			}
 		}
+		if (strcmp(checkID.employeeDepartmentID, departmentInfo.departmentID) != 0)
+		{
+			cout << "That Department ID does not exist! Please enter a valid Department ID.\n";
+			cout << "Department ID: ";
+			getline(cin, input);
+			strcpy(checkID.employeeDepartmentID, input.c_str());
+		}
 	}
 	
-
-	cout << posRead << endl;
 	strcpy(employeeInfo.employeeDepartmentID, checkID.employeeDepartmentID);
 }
 
 /* --------------------------------------------4.) EDIT EMPLOYEE-------------------------------------------- */
-void editEmployee(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl)
+void editEmployee(Employee& employeeInfo, Employee* employeePointer, const int currentEmpl, const int currentDept)
 {
-	if (currentEmpl == 0)
+	if (currentDept == 0)
+	{
+		cout << "There are currently no Departments on file. Please select option 1 to \"Create a Department\" before you create an employee.\n\n";
+	}
+
+	else if (currentEmpl == 0)
 	{
 		cout << "There are currently no records on file. Please select option 2 to \"Create an Employee\".\n\n";
 	}
 
 	else if (currentEmpl > 0)
 	{
-		checkEmplID(employeeInfo, employeePointer, currentEmpl);
-	}
+		employeePointer = &employeeInfo;
+		Employee edit = { "N/A", "N/A", 0, 0, "N/A" };
+		string input;			// user input
 
-	employeePointer = &employeeInfo;
-	Employee edit = { "N/A", "N/A", 0, 0, "N/A" };
-	long emplNum;			// edit this department
-	string input;			// user input
-	streamoff desiredPos;	// position to write to 
-
-							// open file for binary reading 
-	fstream editEmpl("employees.dat", ios::in | ios::out | ios::binary);
-	// check for valid file
-	if (!editEmpl)
-	{
-		cout << "Error opening file. The program will now abort.\n";
-		exit(EXIT_FAILURE);
-	}
-
-	employeeRecords(employeeInfo, currentEmpl);
-
-	// move to desired department and read it 
-	cout << "Please enter the employee ID of the employee you want to edit: ";
-	cin.ignore();
-	getline(cin, input);
-	strcpy(edit.employeeID, input.c_str());
-
-	streamoff posRead = editEmpl.tellg(); // returns read position
-	cout << posRead << endl;
-	editEmpl.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));			// read operation reads currently pointed-to structure AND MOVES pointer DOWN ONE STRUCTURE
-	long emplIndex = 0;
-	while (!editEmpl.eof())
-	{
-		cout << employeeInfo.employeeID << endl;			// check department ID to seek which structure is looked at 
-		if (strcmp(edit.employeeID, employeeInfo.employeeID) == 0)		//COMPARE C STRING
+								// open file for binary reading 
+		fstream editEmpl("employees.dat", ios::in | ios::out | ios::binary);
+		// check for valid file
+		if (!editEmpl)
 		{
-			emplNum = emplIndex;								// determine which structure matches this department ID
-			desiredPos = posRead;								// determine starting position of structure to edit
-			break;
+			cout << "Error opening file. The program will now abort.\n";
+			exit(EXIT_FAILURE);
 		}
-		emplIndex++;
-		streamoff posRead = editEmpl.tellg(); // returns read position
-		cout << posRead << endl;
-		editEmpl.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
+
+		employeeRecords(employeeInfo, currentEmpl);
+
+		// move to desired department and read it 
+		cout << "Please enter the employee ID of the employee you want to edit: ";
+		cin.ignore();
+		getline(cin, input);
+		strcpy(edit.employeeID, input.c_str());
+
+		while (strcmp(edit.employeeID, employeeInfo.employeeID) != 0)
+		{
+			for (int index = 0; index < currentEmpl; index++)
+			{
+				editEmpl.seekg(sizeof(employeeInfo) * index);
+				editEmpl.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
+				if (strcmp(edit.employeeID, employeeInfo.employeeID) == 0)		//COMPARE C STRING
+				{
+					break;
+				}
+			}
+			if (strcmp(edit.employeeID, employeeInfo.employeeID) != 0)
+			{
+				cout << "That Employee ID does not exist! Please enter a valid Employee ID.\n";
+				cout << "Employee ID: ";
+				getline(cin, input);
+				strcpy(edit.employeeID, input.c_str());
+			}
+		}
+		// get new data from user and edit in-memory department record
+		cout << "Old Employee Name: ";
+		cout << employeeInfo.employeeName << endl;
+		cout << "New Employee Name: ";
+		getline(cin, input);
+		strcpy(employeePointer->employeeName, input.c_str());
+
+		cout << "\nOld Employee Salary: $";
+		cout << employeeInfo.employeeSalary;
+		cout << "\nNew Employee Salary: $";
+		double inputDouble;
+		cin >> inputDouble;
+		employeePointer->employeeSalary = inputDouble;
+
+		cout << "\nOld Employee Age: ";
+		cout << employeeInfo.employeeAge;
+		cout << "\nNew Employee Age: ";
+		int inputInt;
+		cin >> inputInt;
+		employeePointer->employeeAge = inputInt;
+
+		streamoff posWrite = editEmpl.tellg();										// sets position where next charater is to be inserted into the output stream
+		editEmpl.seekp(posWrite - sizeof(employeeInfo));
+
+		editEmpl.write(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
+		editEmpl.close();
 	}
-
-	editEmpl.seekg(0, ios::cur);								// sets position in input sentence
-															// get new data from user and edit in-memory department record
-	cout << "Old Employee Name: ";
-	cout << employeeInfo.employeeName << endl;
-	cout << "New Employee Name: ";
-	getline(cin, input);
-	strcpy(employeePointer->employeeName, input.c_str());
-
-	cout << "\nOld Employee Salary: $ ";
-	cout << employeeInfo.employeeSalary;
-	cout << "\nNew Employee Salary: $ ";
-	double inputDouble;
-	cin >> inputDouble;
-	employeePointer->employeeSalary = inputDouble;
-
-	cout << "\nOld Employee Age: ";
-	cout << employeeInfo.employeeAge;
-	cout << "\nNew Employee Age: ";
-	int inputInt;
-	cin >> inputInt;
-	employeePointer->employeeAge = inputInt;
-
-	streamoff posWrite = editEmpl.tellg();										// sets position where next charater is to be inserted into the output stream
-	editEmpl.seekp(posWrite - sizeof(employeeInfo));
-
-	editEmpl.write(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
-	editEmpl.close();
-
-	employeeRecords(employeeInfo, currentEmpl);
 }
 
 /* --------------------------------------------6.) DISPLAY EMPLOYEE RECORDS-------------------------------------------- */
@@ -910,4 +783,57 @@ void employeeRecords(Employee employeeInfo, const int currentEmpl)			// ALL EMPL
 	}
 	
 	emplRecords.close();
+}
+
+/* --------------------------------------------7.) DISPLAY SALARY REPORT-------------------------------------------- */
+void salaryReport(Department departmentInfo, Employee employeeInfo, const int currentDept, const int currentEmpl)
+{
+	cout << fixed << showpoint << setprecision(2);
+	double totalSalary = 0.00;
+	
+	fstream dptRecords("departments.dat", ios::in | ios::binary);
+	fstream emplRecords("employees.dat", ios::in | ios::binary);
+
+	if (!dptRecords && currentDept == 0)
+	{
+		cout << "There are currently no department records on file. Please select option 1 to \"Create an Department\".";
+	}
+	else if (!emplRecords && currentEmpl == 0)
+	{
+		cout << "There are currently no employee records on file. Please select option 2 to \"Create an Employee\".";
+
+		cout << "\n\n\n                    Salary Report: Total Salary Paid for Each Department\n";
+		cout << "---------------------------------------------------------------------------------------------\n";
+		cout << left << setw(25) << "Department Name:" << left << setw(25) << "Department ID:" << left << setw(25) << "Department Head:" << "Total Salary Paid:" << endl;
+		for (int deptIndex = 0; deptIndex < currentDept; deptIndex++)
+		{
+			dptRecords.seekg(sizeof(departmentInfo) * deptIndex);
+			dptRecords.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
+			cout << left << setw(25) << departmentInfo.departmentName << left << setw(25) << departmentInfo.departmentID << left << setw(25) << departmentInfo.departmentHeadName << "$ " << totalSalary << endl;
+		}
+		cout << endl;
+	}
+	else
+	{
+		cout << "\n\n\n                    Salary Report: Total Salary Paid for Each Department\n";
+		cout << "---------------------------------------------------------------------------------------------\n";
+		cout << left << setw(25) << "Department Name:" << left << setw(25) << "Department ID:" << left << setw(25) << "Department Head:" << "Total Salary Paid:" << endl;
+		for (int deptIndex = 0; deptIndex < currentDept; deptIndex++)
+		{
+			totalSalary = 0.00;
+			dptRecords.seekg(sizeof(departmentInfo) * deptIndex);
+			dptRecords.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
+			for (int emplIndex = 0; emplIndex < currentEmpl; emplIndex++)
+			{
+				emplRecords.seekg(sizeof(employeeInfo) * emplIndex);
+				emplRecords.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
+				if (strcmp(departmentInfo.departmentID, employeeInfo.employeeDepartmentID) == 0)
+				{
+					totalSalary += employeeInfo.employeeSalary;
+				}
+			}
+			cout << left << setw(25) << departmentInfo.departmentName << left << setw(25) << departmentInfo.departmentID << left << setw(25) << departmentInfo.departmentHeadName << "$ " << totalSalary << endl;
+		}
+		cout << endl;
+	}
 }
