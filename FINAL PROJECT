@@ -182,7 +182,7 @@ void chooseOption(Department& departmentInfo, Department* departmentPointer, int
 		else
 		{
 			{	
-			cout << "\nYou have reached the maximum number of departments that can be created!\n";
+			cout << "\nYou have reached the maximum number of employees that can be created!\n";
 			cout << "You may select option 4 to \"Edit an Employee\" or option 6 to \"View Existing Employees\".\n\n";
 			}
 		}
@@ -216,7 +216,7 @@ void chooseOption(Department& departmentInfo, Department* departmentPointer, int
 	case 8:			// QUIT PROGRAM
 	{
 		char quit;
-		cout << "Are you sure you want to exit? Enter Y for yes or N for no: ";
+		cout << "\nAre you sure you want to exit? Enter Y for yes or N for no: ";
 		cin >> quit;
 
 		while (quit != 'Y' && quit != 'y' && quit != 'N' && quit != 'n')
@@ -317,6 +317,8 @@ void createDepartment(Department& departmentInfo, Department* departmentPointer,
 
 	createDpt.write(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));
 	createDpt.close();
+
+	cout << endl;
 }
 
 void checkDptID(Department& departmentInfo, Department* departmentPointer, const int currentDept)
@@ -340,7 +342,6 @@ void checkDptID(Department& departmentInfo, Department* departmentPointer, const
 	dptRecords.read(reinterpret_cast<char *>(&departmentInfo), sizeof(departmentInfo));			// read operation reads currently pointed-to structure AND MOVES pointer DOWN ONE STRUCTURE
 	while (!dptRecords.eof() && deptIndex < currentDept)
 	{
-		cout << departmentInfo.departmentID << endl;			// check department ID to seek which structure is looked at 
 		while (strcmp(checkID.departmentID, departmentInfo.departmentID) == 0)		//COMPARE C STRING
 		{
 			cout << "That Department ID already exists! Please enter a different department ID.\n";
@@ -442,11 +443,11 @@ void departmentRecords(Department departmentInfo, const int currentDept)			// AL
 	// open file for binary reading 
 	fstream dptRecords("departments.dat", ios::in | ios::binary);
 	// check for valid file
-	if (!dptRecords && currentDept == 0)
+	if (currentDept == 0)
 	{
 		cout << "\nDEPARTMENT RECORDS\n";
 		cout << "------------------\n";
-		cout << "There are currently no records on file. Please select option 1 to \"Create a Department\".\n\n";
+		cout << "There are currently no records on file. \nPlease select option 1 to \"Create a Department\".\n\n";
 	}
 
 	else if (!dptRecords && currentDept > 0)
@@ -455,7 +456,7 @@ void departmentRecords(Department departmentInfo, const int currentDept)			// AL
 		exit(EXIT_FAILURE);
 	}
 
-	else
+	else if (currentDept > 0)
 	{
 		// DEPARTMENT RECORDS
 		cout << "\nDEPARTMENT RECORDS\n";
@@ -557,12 +558,10 @@ void createEmployee(Employee& employeeInfo, Employee* employeePointer, const int
 	// CHECK EMPLOYEE'S DEPARTMENT ID
 	checkEmplDptID(employeeInfo, employeePointer, currentEmpl, departmentInfo, departmentPointer, currentDept);
 	
-	streamoff posWrite = createEmpl.tellg(); // returns read position
-	cout << posWrite;
-
 	createEmpl.write(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));
 	createEmpl.close();
 
+	cout << endl;
 }
 
 /* --------------------------------------------CHECK EMPLOYEE IDS-------------------------------------------- */
@@ -587,7 +586,6 @@ void checkEmplID(Employee& employeeInfo, Employee* employeePointer, const int cu
 	emplRecords.read(reinterpret_cast<char *>(&employeeInfo), sizeof(employeeInfo));			// read operation reads currently pointed-to structure AND MOVES pointer DOWN ONE STRUCTURE
 	while (!emplRecords.eof() && emplIndex < currentEmpl)
 	{
-		cout << employeeInfo.employeeID << endl;			// check department ID to seek which structure is looked at 
 		while (strcmp(checkID.employeeID, employeeInfo.employeeID) == 0)		//COMPARE C STRING
 		{
 			cout << "That Employee ID already exists! Please enter a different Employee ID.\n";
@@ -666,12 +664,12 @@ void editEmployee(Employee& employeeInfo, Employee* employeePointer, const int c
 {
 	if (currentDept == 0)
 	{
-		cout << "There are currently no Departments on file. Please select option 1 to \"Create a Department\" before you create an employee.\n\n";
+		cout << "\nThere are currently no Departments on file. \nPlease select option 1 to \"Create a Department\" before you create an employee.\n\n";
 	}
 
 	else if (currentEmpl == 0)
 	{
-		cout << "There are currently no records on file. Please select option 2 to \"Create an Employee\".\n\n";
+		cout << "\nThere are currently no records on file. \nPlease select option 2 to \"Create an Employee\".\n\n";
 	}
 
 	else if (currentEmpl > 0)
@@ -748,14 +746,15 @@ void editEmployee(Employee& employeeInfo, Employee* employeePointer, const int c
 /* --------------------------------------------6.) DISPLAY EMPLOYEE RECORDS-------------------------------------------- */
 void employeeRecords(Employee employeeInfo, const int currentEmpl)			// ALL EMPLOYEE RECORDS
 {
+	cout << fixed << showpoint << setprecision(2);
 	// open file for binary reading 
 	fstream emplRecords("employees.dat", ios::in | ios::binary);
 	// check for valid file
-	if (!emplRecords && currentEmpl == 0)
+	if (currentEmpl == 0)
 	{
 		cout << "\nEMPLOYEE RECORDS\n";
 		cout << "------------------\n";
-		cout << "There are currently no records on file. Please select option 2 to \"Create an Employee\".\n\n";
+		cout << "There are currently no records on file. \nPlease select option 2 to \"Create an Employee\".\n\n";
 	}
 
 	else if (!emplRecords && currentEmpl > 0)
@@ -764,7 +763,7 @@ void employeeRecords(Employee employeeInfo, const int currentEmpl)			// ALL EMPL
 		exit(EXIT_FAILURE);
 	}
 
-	else 
+	else if (currentEmpl > 0)
 	{
 		// EMPLOYEE RECORDS
 		cout << "\nEMPLOYEE RECORDS\n";
@@ -794,11 +793,11 @@ void salaryReport(Department departmentInfo, Employee employeeInfo, const int cu
 	fstream dptRecords("departments.dat", ios::in | ios::binary);
 	fstream emplRecords("employees.dat", ios::in | ios::binary);
 
-	if (!dptRecords && currentDept == 0)
+	if (currentDept == 0)
 	{
-		cout << "There are currently no department records on file. Please select option 1 to \"Create an Department\".";
+		cout << "A salary report cannot be generated as there are currently no department records on file. \nPlease select option 1 to \"Create an Department\".\n\n";
 	}
-	else if (!emplRecords && currentEmpl == 0)
+	else if (currentEmpl == 0)
 	{
 		cout << "There are currently no employee records on file. Please select option 2 to \"Create an Employee\".";
 
@@ -813,7 +812,7 @@ void salaryReport(Department departmentInfo, Employee employeeInfo, const int cu
 		}
 		cout << endl;
 	}
-	else
+	else if (currentDept > 0 && currentEmpl >0)
 	{
 		cout << "\n\n\n                    Salary Report: Total Salary Paid for Each Department\n";
 		cout << "---------------------------------------------------------------------------------------------\n";
