@@ -130,7 +130,6 @@ int main()
 		cout << endl;
 	} while (anotherOption != 'N' && anotherOption != 'n');
 
-	system("pause");
 	return 0;
 }
 
